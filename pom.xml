@@ -22,11 +22,11 @@
   <parent>
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
-    <version>3.0-u5-SNAPSHOT</version>
+    <version>3.0-u5</version>
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-hdfs-httpfs</artifactId>
-  <version>0.20.2-cdh3u5-SNAPSHOT</version>
+  <version>0.20.2-cdh3u5</version>
   <packaging>war</packaging>
 
   <name>Apache Hadoop HttpFS for cdh3</name>
