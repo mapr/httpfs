@@ -64,13 +64,12 @@ Hadoop HDFS over HTTP - Documentation Sets ${project.version}
 
   HttpFS was inspired by Hadoop HDFS proxy.
 
-  HttpFS can be seening as a full rewrite of Hadoop HDFS proxy.
+  HttpFS can be seen as a full rewrite of Hadoop HDFS proxy.
+
+  HttpFS uses a new HTTP REST API, {{{http://hadoop.apache.org/docs/r2.0.3-alpha/hadoop-project-dist/hadoop-hdfs/WebHDFS.html}WebHDFS REST API}}.
 
   Hadoop HDFS proxy provides a subset of file system operations (read only),
   HttpFS provides support for all file system operations.
-
-  HttpFS uses a clean HTTP REST API making its use with HTTP tools more
-  intuitive.
 
   HttpFS supports Hadoop pseudo authentication, Kerberos SPNEGOS authentication
   and Hadoop proxy users. Hadoop HDFS proxy did not.

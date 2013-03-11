@@ -42,12 +42,12 @@ Hadoop HDFS over HTTP ${project.version} - Server Setup
   configuration directory.
 
   If this is not the case, add to the <<<httpfs-site.xml>>> file the
-  <<<httpfs.hadoop.config.dir>>> property set to the location
-  of the Hadoop configuration directory.
+  <<<httpfs.hadoop.config.dir>>> property and set the value to the 
+  location of the Hadoop configuration directory.
 
 * Configure Hadoop
 
-  Edit Hadoop <<<core-site.xml>>> and defined the Unix user that will
+  Edit Hadoop <<<core-site.xml>>> and define the Unix user that will
   run the HttpFS server as a proxyuser. For example:
 
 +---+
@@ -68,7 +68,7 @@ Hadoop HDFS over HTTP ${project.version} - Server Setup
 
 * Restart Hadoop
 
-  You need to restart Hadoop for the proxyuser configuration ot become
+  You need to restart Hadoop for the proxyuser configuration to become
   active.
 
 * Start/Stop HttpFS
@@ -79,7 +79,7 @@ Hadoop HDFS over HTTP ${project.version} - Server Setup
 httpfs-${project.version} $ bin/httpfs.sh start
 +---+
 
-  NOTE: Invoking the script without any parameters list all possible
+  NOTE: Invoking the script without any parameters lists all possible
   parameters (start, stop, run, etc.). The <<<httpfs.sh>>> script is a wrapper
   for Tomcat's <<<catalina.sh>>> script that sets the environment variables
   and Java System properties required to run HttpFS server.
