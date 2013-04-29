@@ -185,7 +185,7 @@ public class HttpFSParametersProvider extends ParametersProvider {
      * Constructor.
      */
     public DoAsParam() {
-      super(NAME, null, UserProvider.USER_PATTERN);
+      super(NAME, null, UserProvider.getUserPattern());
     }
 
     /**
@@ -238,7 +238,7 @@ public class HttpFSParametersProvider extends ParametersProvider {
      * Constructor.
      */
     public GroupParam() {
-      super(NAME, null, UserProvider.USER_PATTERN);
+      super(NAME, null, UserProvider.getUserPattern());
     }
 
   }
@@ -329,7 +329,7 @@ public class HttpFSParametersProvider extends ParametersProvider {
      * Constructor.
      */
     public OwnerParam() {
-      super(NAME, null, UserProvider.USER_PATTERN);
+      super(NAME, null, UserProvider.getUserPattern());
     }
 
   }

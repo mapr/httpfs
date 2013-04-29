@@ -38,12 +38,27 @@ public class UserProvider extends AbstractHttpContextInjectable<Principal> imple
 
   public static final String USER_NAME_PARAM = "user.name";
 
-  public static final Pattern USER_PATTERN = Pattern.compile("[_a-zA-Z0-9]+");
+
+  public static final String USER_PATTERN_KEY 
+    = "httpfs.user.provider.user.pattern";
+
+  public static final String USER_PATTERN_DEFAULT 
+    = "^[A-Za-z_][A-Za-z0-9._-]*[$]?$";
+
+  private static Pattern userPattern = Pattern.compile(USER_PATTERN_DEFAULT);
+
+  public static void setUserPattern(String pattern) {
+    userPattern = Pattern.compile(pattern);
+  }
+
+  public static Pattern getUserPattern() {
+    return userPattern;
+  }
 
   private static class UserParam extends StringParam {
 
     public UserParam(String user) {
-      super(USER_NAME_PARAM, user, USER_PATTERN);
+      super(USER_NAME_PARAM, user, getUserPattern());
     }
   }
 

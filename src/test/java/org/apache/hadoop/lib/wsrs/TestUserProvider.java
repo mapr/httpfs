@@ -92,4 +92,42 @@ public class TestUserProvider {
     assertEquals(up.getInjectable(null, null, Principal.class), up);
     assertNull(up.getInjectable(null, null, String.class));
   }
+
+  @Test
+  @TestException(exception = IllegalArgumentException.class)
+  public void userNameEmpty() {
+    new UserProvider.UserParam("");
+  }
+
+  @Test
+  @TestException(exception = IllegalArgumentException.class)
+  public void userNameInvalidStart() {
+    new UserProvider.UserParam("1x");
+  }
+
+  @Test
+  @TestException(exception = IllegalArgumentException.class)
+  public void userNameInvalidDollarSign() {
+    new UserProvider.UserParam("1$x");
+  }
+
+  @Test
+  public void userNameMinLength() {
+    new UserProvider.UserParam("a");
+  }
+
+  @Test
+  public void userNameValidDollarSign() {
+    new UserProvider.UserParam("a$");
+  }
+
+  @Test
+  public void customUserPattern() {
+    try {
+      UserProvider.setUserPattern("1");
+      new UserProvider.UserParam("1");      
+    } finally {
+      UserProvider.setUserPattern(UserProvider.USER_PATTERN_DEFAULT);
+    }
+  }
 }
