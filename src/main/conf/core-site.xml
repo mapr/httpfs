@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+         <?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+	
+<property>
+   <name>fs.maprfs.impl</name>
+   <value>com.mapr.fs.MapRFileSystem</value>
+</property>
+
+<property>  
+    <name>hadoop.proxyuser.httpfs.hosts</name>  
+    <value>*</value>  
+</property>  
+
+<property>  
+    <name>hadoop.proxyuser.httpfs.groups</name>  
+    <value>*</value>  
+</property>  
+
+</configuration>

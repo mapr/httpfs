@@ -20,41 +20,30 @@
                       http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.cloudera.cdh</groupId>
-    <artifactId>cdh-root</artifactId>
-    <version>3.0-u6</version>
+    <groupId>com.mapr</groupId>
+    <artifactId>mapr-root</artifactId>
+    <version>1.0</version>
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-hdfs-httpfs</artifactId>
-  <version>0.20.2-cdh3u6</version>
+  <version>${mapr.hadoop.version}</version>
   <packaging>war</packaging>
 
-  <name>Apache Hadoop HttpFS for cdh3</name>
-  <description>Apache Hadoop HttpFS for cdh3</description>
+  <name>Apache Hadoop HttpFS for mapr</name>
+  <description>Apache Hadoop HttpFS for mapr</description>
 
   <repositories>
     <repository>
-        <id>cdh.repo</id>
-        <url>https://repository.cloudera.com/content/groups/cloudera-repos</url>
-        <name>Cloudera Repositories</name>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-    </repository>
-    <repository>
-        <id>cdh.snapshots.repo</id>
-        <url>https://repository.cloudera.com/content/repositories/snapshots</url>
-        <name>Cloudera Snapshots Repository</name>
-        <snapshots>
-            <enabled>true</enabled>
-        </snapshots>
-        <releases>
-          <enabled>false</enabled>
-        </releases>
+      <id>mapr release</id>
+      <url>http://repository.mapr.com/maven/</url>
+      <snapshots><enabled>true</enabled></snapshots>
+      <releases><enabled>true</enabled></releases>
     </repository>
   </repositories>
 
   <properties>
+    <log4j.version>1.2.16</log4j.version>
+    <mapr.hadoop.version>1.0.3-mapr-3.0.1</mapr.hadoop.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <tomcat.version>6.0.32</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
@@ -69,13 +58,8 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-client</artifactId>
-        <version>${cdh.hadoop.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-minicluster</artifactId>
-        <version>${cdh.hadoop.version}</version>
+        <artifactId>hadoop-core</artifactId>
+	<version>${mapr.hadoop.version}</version>
       </dependency>
       <dependency>
         <groupId>junit</groupId>
@@ -188,27 +172,26 @@
     </dependency>
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-client</artifactId>
+      <artifactId>hadoop-core</artifactId>
+      <version>${mapr.hadoop.version}</version>
       <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-minicluster</artifactId>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
+      <version>${log4j.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+        <version>1.6.1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
+        <version>1.6.1</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
@@ -240,11 +223,20 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>2.3.2</version>
-          <configuration>
-            <source>1.6</source>
-            <target>1.6</target>
-          </configuration>
+	  <version>2.3.2</version>
+	  <executions>
+                <execution>
+                    <id>default-testCompile</id>
+                    <phase>test-compile</phase>
+                    <goals>
+                        <goal>testCompile</goal>
+                    </goals>
+                    <configuration>
+                        <skip>true</skip>
+		    </configuration>
+                </execution>
+	</executions>
+
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -485,7 +477,7 @@
                   <target>
                     <mkdir dir="downloads"/>
                     <get
-                        src="http://archive.cloudera.com/tarballs/apache-tomcat-${tomcat.version}.tar.gz"
+			    src="http://archive.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz"
                         dest="downloads/tomcat.tar.gz" verbose="true" skipexisting="true"/>
                     <delete dir="${project.build.directory}/tomcat.exp"/>
                     <mkdir dir="${project.build.directory}/tomcat.exp"/>

@@ -46,7 +46,8 @@ public class InputStreamEntity implements StreamingOutput {
     if (len == -1) {
       IOUtils.copyBytes(is, os, 4096, true);
     } else {
-      IOUtils.copyBytes(is, os, len, true);
+      int length = (int)len;	    
+      IOUtils.copyBytes(is, os, length, true);
     }
   }
 }
