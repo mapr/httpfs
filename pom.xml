@@ -508,6 +508,8 @@
                           toDir="${httpfs.tomcat.dist.dir}/conf"/>
                     <copy file="${basedir}/src/main/tomcat/logging.properties"
                           toDir="${httpfs.tomcat.dist.dir}/conf"/>
+                    <copy file="${basedir}/src/main/tomcat/setclasspath.sh"
+                          toDir="${httpfs.tomcat.dist.dir}/bin"/>
                     <copy toDir="${httpfs.tomcat.dist.dir}/webapps/ROOT">
                       <fileset dir="${basedir}/src/main/tomcat/ROOT"/>
                     </copy>
