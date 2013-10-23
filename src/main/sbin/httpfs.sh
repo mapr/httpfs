@@ -13,6 +13,11 @@
 #  limitations under the License.
 #
 
+#file client impersonation
+MAPR_IMPERSONATION_ENABLED=" "
+export MAPR_IMPERSONATION_ENABLED
+
+
 # resolve links - $0 may be a softlink
 PRG="${0}"
 
