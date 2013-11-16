@@ -14,7 +14,7 @@
 #
 
 #file client impersonation
-MAPR_IMPERSONATION_ENABLED=" "
+MAPR_IMPERSONATION_ENABLED="True"
 export MAPR_IMPERSONATION_ENABLED
 
 
@@ -39,7 +39,7 @@ source ${HADOOP_LIBEXEC_DIR:-${BASEDIR}/libexec}/httpfs-config.sh
 # The Java System property 'httpfs.http.port' it is not used by HttpFS,
 # it is used in Tomcat's server.xml configuration file
 #
-export CATALINA_OPTS="${CATALINA_OPTS} -Djava.library.path=/opt/mapr/lib -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.hosts=0"
+export CATALINA_OPTS="${CATALINA_OPTS} -Djava.library.path=/opt/mapr/lib -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.hosts=0 -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.groups=0"
 print "Using   CATALINA_OPTS:       ${CATALINA_OPTS}"
 
 catalina_opts="-Dhttpfs.home.dir=${HTTPFS_HOME}";
