@@ -177,6 +177,9 @@ if [ "$CATALINA_BASE" != "$CATALINA_HOME" ] && [ -r "$CATALINA_BASE/bin/tomcat-j
 else
   CLASSPATH="$CLASSPATH""$CATALINA_HOME"/bin/bootstrap.jar
 fi
+# ADDED for MapR-FS:
+export HADOOP_CLASSPATH=`/opt/mapr/hadoop/hadoop*/bin/hadoop classpath`
+CLASSPATH="$HADOOP_CLASSPATH":"$CLASSPATH"
 
 if [ -z "$CATALINA_OUT" ] ; then
   CATALINA_OUT="$CATALINA_BASE"/logs/catalina.out
