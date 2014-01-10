@@ -1,10 +1,6 @@
 -----------------------------------------------------------------------------
-HttpFS backport for cdh3u6 - Hadoop HDFS over HTTP
+HttpFS backport for httpfs-mapr - Hadoop HDFS over HTTP
 
-The HttpFS source for this backport has been taken from the following
-Apache Hadoop Subversion branch@revision:
-
-  https://svn.apache.org/repos/asf/hadoop/common/trunk@1363175
 
 HttpFS is a server that provides a REST HTTP gateway to HDFS with full
 filesystem read & write capabilities.
@@ -28,7 +24,7 @@ Requirements:
 
 How to build:
 
-  Clone this Git repository. Checkout the cdh3u5 branch.
+  Clone this Git repository. Checkout the httpfs-mapr branch.
 
   Run 'mvn package -Pdist'.
 
@@ -40,6 +36,6 @@ How to install:
 
   Follow the setup instructions:
 
-    http://cloudera.github.com/httpfs/
+    http://hadoop.apache.org/docs/r2.2.0/hadoop-hdfs-httpfs/index.html
 
 -----------------------------------------------------------------------------
