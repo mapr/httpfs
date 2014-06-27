@@ -24,11 +24,15 @@ import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InputStreamEntity implements StreamingOutput {
   private InputStream is;
   private long offset;
   private long len;
+  private static Logger LOG = LoggerFactory.getLogger(InputStreamEntity.class);
 
   public InputStreamEntity(InputStream is, long offset, long len) {
     this.is = is;
@@ -43,11 +47,19 @@ public class InputStreamEntity implements StreamingOutput {
   @Override
   public void write(OutputStream os) throws IOException {
     IOUtils.skipFully(is, offset);
-    if (len == -1) {
-      IOUtils.copyBytes(is, os, 4096, true);
-    } else {
-      int length = (int)len;	    
-      IOUtils.copyBytes(is, os, length, true);
+    long l = 4096;
+    if (len != -1) {
+	l = len; 
+    }	
+    try {
+        IOUtils.class.getMethod("copyBytes", InputStream.class, OutputStream.class, long.class, boolean.class);
+        IOUtils.copyBytes(is, os, l, true);
+    }
+    catch (NoSuchMethodException e) {
+        if ( LOG.isDebugEnabled() )
+            LOG.debug("NoSuchMethodException, type casting parameter to int to use compatible IOUtils.copyBytes method");
+        int length = (int) l;
+        IOUtils.copyBytes(is, os, length, true);
     }
   }
 }
