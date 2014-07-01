@@ -49,15 +49,15 @@ public class InputStreamEntity implements StreamingOutput {
     IOUtils.skipFully(is, offset);
     long l = 4096;
     if (len != -1) {
-	l = len; 
+	    l = len;
     }	
     try {
-        IOUtils.class.getMethod("copyBytes", InputStream.class, OutputStream.class, long.class, boolean.class);
-        IOUtils.copyBytes(is, os, l, true);
+        Method m = IOUtils.class.getMethod("copyBytes", InputStream.class, OutputStream.class, long.class, boolean.class);
+        m.invoke(null, is, os, l, true);
     }
-    catch (NoSuchMethodException e) {
+    catch (Exception e) {
         if ( LOG.isDebugEnabled() )
-            LOG.debug("NoSuchMethodException, type casting parameter to int to use compatible IOUtils.copyBytes method");
+            LOG.debug("Exception, type casting parameter to int to use compatible IOUtils.copyBytes method");
         int length = (int) l;
         IOUtils.copyBytes(is, os, length, true);
     }

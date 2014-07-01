@@ -43,7 +43,7 @@
 
   <properties>
     <log4j.version>1.2.16</log4j.version>
-    <mapr.hadoop.version>1.0.3-mapr-3.1.2-SNAPSHOT</mapr.hadoop.version>
+    <mapr.hadoop.version>1.0.3-mapr-3.1.1</mapr.hadoop.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <tomcat.version>6.0.32</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
