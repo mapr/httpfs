@@ -17,6 +17,10 @@
 MAPR_IMPERSONATION_ENABLED="True"
 export MAPR_IMPERSONATION_ENABLED
 
+#gives access to MAPR_ECOSYSTEM_LOGIN_OPTS
+export BASEMAPR=${MAPR_HOME:-/opt/mapr}
+env=${BASEMAPR}/conf/env.sh
+[ -f $env ] && . $env
 
 # resolve links - $0 may be a softlink
 PRG="${0}"
@@ -40,7 +44,6 @@ source ${HADOOP_LIBEXEC_DIR:-${BASEDIR}/libexec}/httpfs-config.sh
 # it is used in Tomcat's server.xml configuration file
 #
 export CATALINA_OPTS="${CATALINA_OPTS} -Djava.library.path=/opt/mapr/lib -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.hosts=0 -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.groups=0"
-print "Using   CATALINA_OPTS:       ${CATALINA_OPTS}"
 
 catalina_opts="-Dhttpfs.home.dir=${HTTPFS_HOME}";
 catalina_opts="${catalina_opts} -Dhttpfs.config.dir=${HTTPFS_CONFIG}";
@@ -51,8 +54,10 @@ catalina_opts="${catalina_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
 
 print "Adding to CATALINA_OPTS:     ${catalina_opts}"
+#DEBUG_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=14001,suspend=y"
 
-export CATALINA_OPTS="${CATALINA_OPTS} ${catalina_opts}"
+export CATALINA_OPTS="${CATALINA_OPTS} ${catalina_opts} ${MAPR_ECOSYSTEM_LOGIN_OPTS}"
+print "Using   CATALINA_OPTS:       ${CATALINA_OPTS}"
 
 # A bug in catalina.sh script does not use CATALINA_OPTS for stopping the server
 #
