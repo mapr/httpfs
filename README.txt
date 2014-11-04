@@ -39,3 +39,46 @@ How to install:
     http://hadoop.apache.org/docs/r2.2.0/hadoop-hdfs-httpfs/index.html
 
 -----------------------------------------------------------------------------
+
+For PAM (user&password) authentication support:
+
+  1) Uncomment following configurations in 'web.xml' file:
+
+        <security-constraint>
+            <web-resource-collection>
+                <web-resource-name>Admin</web-resource-name>
+                <url-pattern>/*</url-pattern>
+            </web-resource-collection>
+            <auth-constraint>
+                <role-name>admin</role-name>
+            </auth-constraint>
+        </security-constraint>
+
+        <security-role>
+            <role-name>admin</role-name>
+        </security-role>
+
+        <login-config>
+            <auth-method>BASIC</auth-method>
+            <realm-name>Admin</realm-name>
+        </login-config>
+
+  2) Add PamLogin to the mapr.login.conf file:
+
+    $ sudo nano /opt/mapr/conf/mapr.login.conf
+
+        PamLogin {
+            javax.security.auth.spi.PamLoginModule required service=login;
+        };
+
+  3) Restart httpfs.
+
+  4) Test configurations:
+
+  * Here you should get "401 Unauthorized" error:
+
+    $ curl -i "http://<host_name>:<port>/webhdfs/v1?op=GETFILESTATUS&user.name=mapr"
+
+  * Provide machine's user&password:
+
+    $ curl -u <user>:<password> "http://<host_name>:<port>/webhdfs/v1?op=GETFILESTATUS&user.name=mapr"
