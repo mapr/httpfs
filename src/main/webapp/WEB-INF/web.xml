@@ -45,26 +45,25 @@
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
 
-    <!--
+
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Admin</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>
-            <role-name>admin</role-name>
+            <role-name>*</role-name>
         </auth-constraint>
     </security-constraint>
 
     <security-role>
-        <role-name>admin</role-name>
+        <role-name>*</role-name>
     </security-role>
 
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>Admin</realm-name>
     </login-config>
-    -->
+
 
   <filter>
     <filter-name>authFilter</filter-name>
