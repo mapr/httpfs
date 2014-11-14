@@ -65,6 +65,18 @@
     </login-config>
     -->
 
+  <!--
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>Protected Context</web-resource-name>
+      <url-pattern>/*</url-pattern>
+    </web-resource-collection>
+    <user-data-constraint>
+      <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+  </security-constraint>
+  -->
+
   <filter>
     <filter-name>authFilter</filter-name>
     <filter-class>org.apache.hadoop.fs.http.server.AuthFilter</filter-class>
