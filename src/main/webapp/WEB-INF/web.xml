@@ -71,10 +71,21 @@
       <web-resource-name>Protected Context</web-resource-name>
       <url-pattern>/*</url-pattern>
     </web-resource-collection>
+    <auth-constraint>
+      <role-name>sample</role-name>
+    </auth-constraint>
     <user-data-constraint>
       <transport-guarantee>CONFIDENTIAL</transport-guarantee>
     </user-data-constraint>
   </security-constraint>
+
+  <security-role>
+    <role-name>sample</role-name>
+  </security-role>
+
+  <login-config>
+    <auth-method>CLIENT-CERT</auth-method>
+  </login-config>
   -->
 
   <filter>

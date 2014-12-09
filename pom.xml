@@ -531,6 +531,8 @@
                     <copy toDir="${httpfs.tomcat.dist.dir}/webapps/webhdfs">
                       <fileset dir="${project.build.directory}/webhdfs"/>
                     </copy>
+                    <copy file="${basedir}/src/main/tomcat/tomcat-users.xml"
+                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
                   </target>
                 </configuration>
               </execution>
