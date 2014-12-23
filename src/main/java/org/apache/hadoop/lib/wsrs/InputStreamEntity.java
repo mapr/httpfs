@@ -18,13 +18,13 @@
 
 package org.apache.hadoop.lib.wsrs;
 
-import org.apache.hadoop.io.IOUtils;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.*;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +47,6 @@ public class InputStreamEntity implements StreamingOutput {
   @Override
   public void write(OutputStream os) throws IOException {
     IOUtils.skipFully(is, offset);
-    long l = 4096;
-    if (len != -1) {
-	    l = len;
-    }	
-    try {
-        Method m = IOUtils.class.getMethod("copyBytes", InputStream.class, OutputStream.class, long.class, boolean.class);
-        m.invoke(null, is, os, l, true);
-    }
-    catch (Exception e) {
-        if ( LOG.isDebugEnabled() )
-            LOG.debug("Exception, type casting parameter to int to use compatible IOUtils.copyBytes method");
-        int length = (int) l;
-        IOUtils.copyBytes(is, os, length, true);
-    }
+    IOUtils.copy(is, os);
   }
 }
