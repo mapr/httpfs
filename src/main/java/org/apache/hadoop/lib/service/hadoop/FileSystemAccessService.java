@@ -103,6 +103,9 @@ public class FileSystemAccessService extends BaseService implements FileSystemAc
       conf.set("hadoop.security.authentication", "simple");
       UserGroupInformation.setConfiguration(conf);
       LOG.info("Using FileSystemAccess simple/pseudo authentication, principal [{}]", System.getProperty("user.name"));
+    } if (security.equals("maprauth")) {
+      LOG.info("Using FileSystemAccess MapR authentication, ", System.getProperty("user.name"));
+      getServiceConfig().setStrings("hadoop.security.authentication", "simple");
     } else {
       throw new ServiceException(FileSystemAccessException.ERROR.H09, security);
     }

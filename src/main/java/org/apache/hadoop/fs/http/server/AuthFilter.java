@@ -18,9 +18,13 @@
 package org.apache.hadoop.fs.http.server;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.security.authentication.client.AuthenticationException;
 import org.apache.hadoop.security.authentication.server.AuthenticationFilter;
+import org.apache.hadoop.security.authentication.server.AuthenticationToken;
 
-import javax.servlet.FilterConfig;
+import javax.servlet.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -81,6 +85,7 @@ public class AuthFilter extends AuthenticationFilter {
     } catch (IOException ex) {
       throw new RuntimeException("Could not read HttpFS signature secret file: " + signatureSecretFile);
     }
+    props.put("type", "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler");
     return props;
   }
 
