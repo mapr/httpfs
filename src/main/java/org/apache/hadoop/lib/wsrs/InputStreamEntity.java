@@ -46,7 +46,14 @@ public class InputStreamEntity implements StreamingOutput {
 
   @Override
   public void write(OutputStream os) throws IOException {
-    IOUtils.skipFully(is, offset);
-    IOUtils.copy(is, os);
+    try {
+      // if len not equal -1 we copy chunk from offset to len
+      // if len equal -1 we copy chunk from offset to end file
+      IOUtils.copyLarge(is, os, offset, len);
+    }
+    finally {
+      is.close();
+      os.close();
+    }
   }
 }
