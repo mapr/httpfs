@@ -27,10 +27,13 @@ import com.sun.jersey.spi.inject.InjectableProvider;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.LenParam;
 
 /**
  * Jersey provider that parses the request parameters based on the
@@ -39,6 +42,9 @@ import java.util.Map;
 public class ParametersProvider
   extends AbstractHttpContextInjectable<Parameters>
   implements InjectableProvider<Context, Type> {
+
+  private final static String LEN_PARAM_CLASSNAME = LenParam.class.getName();
+  private final static String LEN_PARAM_GET_OLD_NAME_METHOD = "getOldName";
 
   private String driverParam;
   private Class<? extends Enum> enumClass;
@@ -85,9 +91,18 @@ public class ParametersProvider
             paramClass.getName()));
       }
       try {
-        param.parseParam(queryString.getFirst(param.getName()));
-      }
-      catch (Exception ex) {
+        String string = queryString.getFirst(param.getName());
+        if (string == null && paramClass.getName().equals(LEN_PARAM_CLASSNAME)) {
+          try {
+            Method m = paramClass.getMethod(LEN_PARAM_GET_OLD_NAME_METHOD);
+            param.parseParam(queryString.getFirst((String) m.invoke(null)));
+          } catch (Exception e) {
+            throw new IllegalArgumentException(e.toString(), e);
+          }
+        } else {
+          param.parseParam(string);
+        }
+      } catch (Exception ex) {
         throw new IllegalArgumentException(ex.toString(), ex);
       }
       map.put(param.getName(), param);

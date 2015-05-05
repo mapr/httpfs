@@ -244,6 +244,11 @@ public class HttpFSServer {
         InputStream is = command.execute(fs);
         Long offset = params.get(OffsetParam.NAME, OffsetParam.class);
         Long len = params.get(LenParam.NAME, LenParam.class);
+
+        if (len == null) {
+          len = params.get(LenParam.getOldName(), LenParam.class);
+        }
+
         AUDIT_LOG.info("[{}] offset [{}] len [{}]",
                        new Object[]{path, offset, len});
         InputStreamEntity entity = new InputStreamEntity(is, offset, len);

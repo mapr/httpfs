@@ -254,6 +254,16 @@ public class HttpFSParametersProvider extends ParametersProvider {
     public static final String NAME = "length";
 
     /**
+     * Old parameter name, saved for backward compatibility.
+     */
+    @Deprecated
+    private static final String OLD_NAME = "len";
+
+    public static String getOldName() {
+      return OLD_NAME;
+    }
+
+    /**
      * Constructor.
      */
     public LenParam() {
