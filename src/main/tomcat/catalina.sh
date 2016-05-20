@@ -408,7 +408,11 @@ elif [ "$1" = "stop" ] ; then
   if [ ! -z "$CATALINA_PID" ]; then
     if [ -s "$CATALINA_PID" ]; then
       if [ -f "$CATALINA_PID" ]; then
-        kill -0 `cat "$CATALINA_PID"` >/dev/null 2>&1
+        if grep --quiet kerberosEnable=true $MAPR_HOME/conf/mapr-clusters.conf; then
+          FORCE=1
+        else
+          kill -0 `cat "$CATALINA_PID"` >/dev/null 2>&1
+        fi
         if [ $? -gt 0 ]; then
           echo "PID file found but no matching process was found. Stop aborted."
           exit 1

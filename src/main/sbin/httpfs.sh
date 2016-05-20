@@ -62,6 +62,7 @@ print "Using   CATALINA_OPTS:       ${CATALINA_OPTS}"
 # A bug in catalina.sh script does not use CATALINA_OPTS for stopping the server
 #
 if [ "${1}" = "stop" ]; then
+  export MAPR_HOME
   export JAVA_OPTS=${CATALINA_OPTS}
 fi
 
