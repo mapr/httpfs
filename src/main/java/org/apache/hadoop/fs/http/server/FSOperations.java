@@ -17,6 +17,7 @@
  */
 package org.apache.hadoop.fs.http.server;
 
+import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileChecksum;
 import org.apache.hadoop.fs.FileStatus;
@@ -25,6 +26,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.fs.http.client.HttpFSFileSystem;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.lib.service.FileSystemAccess;
 import org.json.simple.JSONArray;
@@ -137,6 +139,74 @@ public class FSOperations {
     response.put(HttpFSFileSystem.FILE_STATUSES_JSON, temp);
     return response;
   }
+
+  /**
+   * Converts a FileSystemAccess <code>BlockLocation</code> array into a JSON
+   * array object.
+   *
+   * @param locations locations of block
+   * @return the JSON representation of the block locations
+   * @throws IOException
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private static Map blockLocationsToJSON(BlockLocation[] locations)
+          throws IOException {
+    JSONArray json = new JSONArray();
+    if (locations != null) {
+      for (BlockLocation location : locations) {
+        json.add(blockLocationToJSONRaw(location));
+      }
+    }
+    Map response = new LinkedHashMap();
+    Map temp = new LinkedHashMap();
+    temp.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATIONS_JSON, json);
+    response.put(HttpFSFileSystem.LOCATED_BLOCKS_JSON, temp);
+    return response;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private static Map blockLocationToJSONRaw(BlockLocation location)
+          throws IOException {
+    if (location == null) {
+      return null;
+    }
+    Map json = new LinkedHashMap();
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_CORRUPT_JSON,
+            location.isCorrupt());
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_OFFSET_JSON,
+            location.getOffset());
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_LENGTH_JSON,
+            location.getLength());
+
+    JSONArray hostsJson = new JSONArray();
+    String[] hosts = location.getHosts();
+    if (hosts != null) {
+      for (String host : hosts) {
+        hostsJson.add(host);
+      }
+    }
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_HOSTS_JSON, hostsJson);
+
+    JSONArray namesJson = new JSONArray();
+    String[] names = location.getNames();
+    if (names != null) {
+      for (String name : names) {
+        namesJson.add(name);
+      }
+    }
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_NAMES_JSON, namesJson);
+    JSONArray topologyPathsJson = new JSONArray();
+    String[] topologyPaths = location.getTopologyPaths();
+    if (topologyPaths != null) {
+      for (String path : topologyPaths) {
+        topologyPathsJson.add(path);
+      }
+    }
+    json.put(HttpFSFileSystem.LOCATED_BLOCKS_LOCATION_TOPOLOGYPATHS_JSON,
+            topologyPathsJson);
+    return json;
+  }
+
 
   /**
    * Converts an object into a Json Map with with one key-value entry.
@@ -670,6 +740,40 @@ public class FSOperations {
       return json;
     }
 
+  }
+
+  /**
+   * Executor that performs file-block-locations FileSystemAccess files system
+   * operation.
+   */
+  @SuppressWarnings("rawtypes")
+  @InterfaceAudience.Private
+  public static class FSFileBlockLocations implements
+          FileSystemAccess.FileSystemExecutor<Map> {
+    private Path path;
+    private long offsetValue;
+    private long lengthValue;
+
+    /**
+     * Creates a file-block-locations executor.
+     *
+     * @param path the path to retrieve the location
+     * @param offsetValue offset into the given file
+     * @param lengthValue length for which to get locations for
+     */
+    public FSFileBlockLocations(String path, long offsetValue, long lengthValue) {
+      this.path = new Path(path);
+      this.offsetValue = offsetValue;
+      this.lengthValue = lengthValue;
+    }
+
+    @Override
+    public Map execute(FileSystem fs) throws IOException {
+      BlockLocation[] locations =
+              fs.getFileBlockLocations(this.path, this.offsetValue,
+                      this.lengthValue);
+      return blockLocationsToJSON(locations);
+    }
   }
 
   /**

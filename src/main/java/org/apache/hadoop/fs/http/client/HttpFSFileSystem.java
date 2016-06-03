@@ -28,12 +28,14 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PositionedReadable;
 import org.apache.hadoop.fs.Seekable;
 import org.apache.hadoop.fs.permission.FsPermission;
+import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authentication.client.AuthenticatedURL;
 import org.apache.hadoop.security.authentication.client.Authenticator;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.HttpExceptionUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -85,6 +87,8 @@ public class HttpFSFileSystem extends FileSystem {
   public static final String MODIFICATION_TIME_PARAM = "modificationtime";
   public static final String ACCESS_TIME_PARAM = "accesstime";
   public static final String RENEWER_PARAM = "renewer";
+  public static final String OFFSET_PARAM = "offset";
+  public static final String LENGTH_PARAM = "length";
 
   public static final Short DEFAULT_PERMISSION = 0755;
 
@@ -148,6 +152,15 @@ public class HttpFSFileSystem extends FileSystem {
   public static final String ERROR_EXCEPTION_JSON = "exception";
   public static final String ERROR_CLASSNAME_JSON = "javaClassName";
   public static final String ERROR_MESSAGE_JSON = "message";
+  public static final String LOCATED_BLOCKS_JSON = "LocatedBlocks";
+  public static final String LOCATED_BLOCKS_LOCATIONS_JSON = "locations";
+  public static final String LOCATED_BLOCKS_LOCATION_CORRUPT_JSON = "corrupt";
+  public static final String LOCATED_BLOCKS_LOCATION_OFFSET_JSON = "offset";
+  public static final String LOCATED_BLOCKS_LOCATION_LENGTH_JSON = "length";
+  public static final String LOCATED_BLOCKS_LOCATION_HOSTS_JSON = "hosts";
+  public static final String LOCATED_BLOCKS_LOCATION_NAMES_JSON = "names";
+  public static final String LOCATED_BLOCKS_LOCATION_TOPOLOGYPATHS_JSON =
+          "topologyPaths";
 
   public static final int HTTP_TEMPORARY_REDIRECT = 307;
 
@@ -159,7 +172,7 @@ public class HttpFSFileSystem extends FileSystem {
   public enum Operation {
     OPEN(HTTP_GET), GETFILESTATUS(HTTP_GET), LISTSTATUS(HTTP_GET),
     GETHOMEDIRECTORY(HTTP_GET), GETCONTENTSUMMARY(HTTP_GET),
-    GETFILECHECKSUM(HTTP_GET),  GETFILEBLOCKLOCATIONS(HTTP_GET),
+    GETFILECHECKSUM(HTTP_GET),  GET_BLOCK_LOCATIONS(HTTP_GET),
     INSTRUMENTATION(HTTP_GET),
     APPEND(HTTP_POST),
     CREATE(HTTP_PUT), MKDIRS(HTTP_PUT), RENAME(HTTP_PUT), SETOWNER(HTTP_PUT),
@@ -548,6 +561,68 @@ public class HttpFSFileSystem extends FileSystem {
     validateResponse(conn, HttpURLConnection.HTTP_OK);
     JSONObject json = (JSONObject) jsonParse(conn);
     return (Boolean) json.get(RENAME_JSON);
+  }
+
+  /**
+   * Return an array containing hostnames, offset and size of portions of the
+   * given file. For a nonexistent file or regions, null will be returned.
+   *
+   * This call is most helpful with DFS, where it returns hostnames of machines
+   * that contain the given file.
+   *
+   * @param file FilesStatus to get data from
+   * @param start offset into the given file
+   * @param len length for which to get locations for
+   * @return the block location array
+   */
+  @Override
+  public BlockLocation[] getFileBlockLocations(FileStatus file, long start,
+                                               long len) throws IOException {
+    Map<String, String> params = new HashMap<String, String>();
+    params.put(OP_PARAM, Operation.GET_BLOCK_LOCATIONS.toString());
+    params.put(OFFSET_PARAM, Long.toString(start));
+    params.put(LENGTH_PARAM, Long.toString(len));
+    HttpURLConnection conn =
+            getConnection(Operation.GET_BLOCK_LOCATIONS.getMethod(), params,
+                    file.getPath(), true);
+    HttpExceptionUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
+    JSONObject json = (JSONObject) jsonParse(conn);
+    json = (JSONObject) json.get(LOCATED_BLOCKS_JSON);
+    JSONArray jsonArray = (JSONArray) json.get(LOCATED_BLOCKS_LOCATIONS_JSON);
+    BlockLocation[] locations = new BlockLocation[jsonArray.size()];
+    for (int i = 0; i < jsonArray.size(); i++) {
+      locations[i] = createBlockLocation((JSONObject) jsonArray.get(i));
+    }
+    return locations;
+  }
+
+  private BlockLocation createBlockLocation(JSONObject json) throws IOException {
+    BlockLocation location = new BlockLocation();
+    location.setCorrupt((Boolean) json
+            .get(LOCATED_BLOCKS_LOCATION_CORRUPT_JSON));
+    location.setOffset((Long) json.get(LOCATED_BLOCKS_LOCATION_OFFSET_JSON));
+    location.setLength((Long) json.get(LOCATED_BLOCKS_LOCATION_LENGTH_JSON));
+
+    JSONArray array = (JSONArray) json.get(LOCATED_BLOCKS_LOCATION_HOSTS_JSON);
+    String[] hosts = new String[array.size()];
+    for (int i = 0; i < array.size(); i++) {
+      hosts[i] = (String) array.get(i);
+    }
+    location.setHosts(hosts);
+    array = (JSONArray) json.get(LOCATED_BLOCKS_LOCATION_NAMES_JSON);
+    String[] names = new String[array.size()];
+    for (int i = 0; i < array.size(); i++) {
+      names[i] = (String) array.get(i);
+    }
+    location.setNames(names);
+
+    array = (JSONArray) json.get(LOCATED_BLOCKS_LOCATION_TOPOLOGYPATHS_JSON);
+    String[] topologyPaths = new String[array.size()];
+    for (int i = 0; i < array.size(); i++) {
+      topologyPaths[i] = (String) array.get(i);
+    }
+    location.setTopologyPaths(topologyPaths);
+    return location;
   }
 
   /**
