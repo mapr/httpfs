@@ -52,8 +52,8 @@ public class HttpFSParametersProvider extends ParametersProvider {
     PARAMS_DEF.put(Operation.GETHOMEDIRECTORY, new Class[]{DoAsParam.class});
     PARAMS_DEF.put(Operation.GETCONTENTSUMMARY, new Class[]{DoAsParam.class});
     PARAMS_DEF.put(Operation.GETFILECHECKSUM, new Class[]{DoAsParam.class});
-    PARAMS_DEF.put(Operation.GETFILEBLOCKLOCATIONS,
-      new Class[]{DoAsParam.class});
+    PARAMS_DEF.put(Operation.GET_BLOCK_LOCATIONS,
+            new Class[]{OffsetParam.class, LenParam.class, DoAsParam.class});
     PARAMS_DEF.put(Operation.INSTRUMENTATION, new Class[]{DoAsParam.class});
     PARAMS_DEF.put(Operation.APPEND,
       new Class[]{DoAsParam.class, DataParam.class});

@@ -312,8 +312,23 @@ public class HttpFSServer {
         response = Response.ok(json).type(MediaType.APPLICATION_JSON).build();
         break;
       }
-      case GETFILEBLOCKLOCATIONS: {
-        response = Response.status(Response.Status.BAD_REQUEST).build();
+      case GET_BLOCK_LOCATIONS: {
+        long offset = 0;
+        long len = Long.MAX_VALUE;
+        Long offsetParm = params.get(OffsetParam.NAME, OffsetParam.class);
+        Long lenParm = params.get(LenParam.NAME, LenParam.class);
+        AUDIT_LOG.info("[{}] offset [{}] len [{}]", new Object[] { path,
+            offsetParm, lenParm });
+        if (offsetParm != null && offsetParm.longValue() > 0) {
+          offset = offsetParm.longValue();
+        }
+        if (lenParm != null && lenParm.longValue() >= 0) {
+          len = lenParm.longValue();
+        }
+        FSOperations.FSFileBlockLocations command =
+          new FSOperations.FSFileBlockLocations(path, offset, len);
+        Map json = fsExecute(user, doAs, command);
+        response = Response.ok(json).type(MediaType.APPLICATION_JSON).build();
         break;
       }
       default: {
