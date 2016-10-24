@@ -53,6 +53,11 @@ catalina_opts="${catalina_opts} -Dhttpfs.admin.port=${HTTPFS_ADMIN_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
 
+if grep --quiet  secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
+catalina_opts="${catalina_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+catalina_opts="${catalina_opts} -Dhttpfs.authentication.type=multiauth";
+fi
+
 print "Adding to CATALINA_OPTS:     ${catalina_opts}"
 #DEBUG_OPTS="-Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=14001,suspend=y"
 
