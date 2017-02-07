@@ -37,6 +37,7 @@ import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.OwnerParam;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.PermissionParam;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.ReplicationParam;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.DestinationParam;
+import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.FSActionParam;
 import org.apache.hadoop.lib.service.FileSystemAccess;
 import org.apache.hadoop.lib.service.FileSystemAccessException;
 import org.apache.hadoop.lib.service.Groups;
@@ -329,6 +330,13 @@ public class HttpFSServer {
           new FSOperations.FSFileBlockLocations(path, offset, len);
         Map json = fsExecute(user, doAs, command);
         response = Response.ok(json).type(MediaType.APPLICATION_JSON).build();
+        break;
+      }
+      case CHECKACCESS: {
+        String fsAction = params.get(FSActionParam.NAME, FSActionParam.class);
+        FSOperations.FSCheckAccess command = new FSOperations.FSCheckAccess(path, fsAction);
+        fsExecute(user, doAs, command);
+        response = Response.ok().build();
         break;
       }
       default: {

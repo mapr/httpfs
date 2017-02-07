@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.http.server;
 import com.sun.jersey.api.container.ContainerException;
 import org.apache.hadoop.lib.service.FileSystemAccessException;
 import org.apache.hadoop.lib.wsrs.ExceptionProvider;
+import org.apache.hadoop.security.AccessControlException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -63,7 +64,9 @@ public class HttpFSExceptionProvider extends ExceptionProvider {
     if (throwable instanceof ContainerException) {
       throwable = throwable.getCause();
     }
-    if (throwable instanceof SecurityException) {
+    if(throwable instanceof AccessControlException) {
+      status = Response.Status.FORBIDDEN;
+    } else if (throwable instanceof SecurityException) {
       status = Response.Status.UNAUTHORIZED;
     } else if (throwable instanceof FileNotFoundException) {
       status = Response.Status.NOT_FOUND;

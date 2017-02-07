@@ -75,6 +75,8 @@ public class HttpFSParametersProvider extends ParametersProvider {
                   AccessTimeParam.class});
     PARAMS_DEF.put(Operation.DELETE,
       new Class[]{DoAsParam.class, RecursiveParam.class});
+    PARAMS_DEF.put(Operation.CHECKACCESS,
+      new Class[]{DoAsParam.class, FSActionParam.class});
   }
 
   public HttpFSParametersProvider() {
@@ -97,6 +99,13 @@ public class HttpFSParametersProvider extends ParametersProvider {
     public AccessTimeParam() {
       super(NAME, -1l);
     }
+  }
+
+  public static class FSActionParam extends StringParam {
+
+    public static final String NAME = HttpFSFileSystem.FSACTION_PARAM;
+
+    public FSActionParam() { super(NAME, null);}
   }
 
   /**
