@@ -25,10 +25,12 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.fs.http.client.HttpFSFileSystem;
+import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.lib.service.FileSystemAccess;
+import org.apache.hadoop.security.AccessControlException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -812,6 +814,44 @@ public class FSOperations {
       return null;
     }
 
+  }
+
+  /**
+   * Executor that performs a access FileSystemAccess files system operation.
+   */
+  public static class FSCheckAccess implements FileSystemAccess.FileSystemExecutor<Void> {
+    Path path;
+    FsAction fsAction;
+
+    /**
+     * Creates a access executor.
+     *
+     * @param path path to set the times.
+     * @param fsAction type of access to check.
+     */
+    public FSCheckAccess(String path, String fsAction) {
+      this.path = new Path(path);
+      this.fsAction =   FsAction.getFsAction(fsAction);
+    }
+
+    /**
+     * Executes the filesystem operation.
+     *
+     * @param fs filesystem instance to use.
+     *
+     * @return void.
+     *
+     * @throws IOException thrown if an IO error occured.
+     */
+    @Override
+    public Void execute(FileSystem fs) throws IOException, IllegalArgumentException {
+      if(fsAction == null) {
+        throw new IllegalArgumentException("Incorrect fsaction value");
+      }
+
+      fs.access(path, fsAction);
+      return null;
+    }
   }
 
 }

@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PositionedReadable;
 import org.apache.hadoop.fs.Seekable;
+import org.apache.hadoop.fs.permission.FsAction;
 import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.security.UserGroupInformation;
@@ -89,6 +90,7 @@ public class HttpFSFileSystem extends FileSystem {
   public static final String RENEWER_PARAM = "renewer";
   public static final String OFFSET_PARAM = "offset";
   public static final String LENGTH_PARAM = "length";
+  public static final String FSACTION_PARAM = "fsaction";
 
   public static final Short DEFAULT_PERMISSION = 0755;
 
@@ -170,10 +172,10 @@ public class HttpFSFileSystem extends FileSystem {
   private static final String HTTP_DELETE = "DELETE";
 
   public enum Operation {
-    OPEN(HTTP_GET), GETFILESTATUS(HTTP_GET), LISTSTATUS(HTTP_GET),
-    GETHOMEDIRECTORY(HTTP_GET), GETCONTENTSUMMARY(HTTP_GET),
-    GETFILECHECKSUM(HTTP_GET),  GET_BLOCK_LOCATIONS(HTTP_GET),
-    INSTRUMENTATION(HTTP_GET),
+    CHECKACCESS(HTTP_GET), OPEN(HTTP_GET), GETFILESTATUS(HTTP_GET),
+    LISTSTATUS(HTTP_GET), GETHOMEDIRECTORY(HTTP_GET),
+    GETCONTENTSUMMARY(HTTP_GET), GETFILECHECKSUM(HTTP_GET),
+    GET_BLOCK_LOCATIONS(HTTP_GET), INSTRUMENTATION(HTTP_GET),
     APPEND(HTTP_POST),
     CREATE(HTTP_PUT), MKDIRS(HTTP_PUT), RENAME(HTTP_PUT), SETOWNER(HTTP_PUT),
     SETPERMISSION(HTTP_PUT), SETREPLICATION(HTTP_PUT), SETTIMES(HTTP_PUT),
@@ -889,6 +891,43 @@ public class HttpFSFileSystem extends FileSystem {
                                            fileStatus.getPath());
     }
     return fileStatus;
+  }
+
+  /**
+   * Checks if the user can access a path.  The mode specifies which access
+   * checks to perform.  If the requested permissions are granted, then the
+   * method returns normally.  If access is denied, then the method throws an
+   * {@link AccessControlException}.
+   * <p/>
+   * The default implementation of this method calls {@link #getFileStatus(Path)}
+   * and checks the returned permissions against the requested permissions.
+   * Note that the getFileStatus call will be subject to authorization checks.
+   * Typically, this requires search (execute) permissions on each directory in
+   * the path's prefix, but this is implementation-defined.  Any file system
+   * that provides a richer authorization model (such as ACLs) may override the
+   * default implementation so that it checks against that model instead.
+   * <p>
+   * In general, applications should avoid using this method, due to the risk of
+   * time-of-check/time-of-use race conditions.  The permissions on a file may
+   * change immediately after the access call returns.  Most applications should
+   * prefer running specific file system actions as the desired user represented
+   * by a {@link UserGroupInformation}.
+   *
+   * @param path Path to check
+   * @param mode type of access to check
+   * @throws AccessControlException if access is denied
+   * @throws FileNotFoundException if the path does not exist
+   * @throws IOException see specific implementation
+   */
+  @Override
+  public void access(Path path, FsAction mode) throws IOException {
+    Map<String, String> params = new HashMap<String, String>();
+    params.put(OP_PARAM, Operation.CHECKACCESS.toString());
+    params.put(FSACTION_PARAM, mode.toString());
+    HttpURLConnection conn = getConnection(Operation.CHECKACCESS.getMethod(),
+            params, path, true);
+    validateResponse(conn,HttpURLConnection.HTTP_OK);
+
   }
 
   @Override
