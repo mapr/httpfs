@@ -51,7 +51,7 @@ public class FileSystemAccessService extends BaseService implements FileSystemAc
 
   private static final String INSTRUMENTATION_GROUP = "hadoop";
 
-  static final String MAPR_SASL = "maprsasl";
+  static final String MULTIAUTH = "multiauth";
 
   public static final String AUTHENTICATION_TYPE = "authentication.type";
   public static final String KERBEROS_KEYTAB = "authentication.kerberos.keytab";
@@ -105,8 +105,8 @@ public class FileSystemAccessService extends BaseService implements FileSystemAc
       conf.set("hadoop.security.authentication", "simple");
       UserGroupInformation.setConfiguration(conf);
       LOG.info("Using FileSystemAccess simple/pseudo authentication, principal [{}]", System.getProperty("user.name"));
-    } else if (security.equals(MAPR_SASL)) {
-      LOG.info("Using FileSystemAccess MapR authentication, ", System.getProperty("user.name"));
+    } else if (security.equals(MULTIAUTH)) {
+      LOG.info("Using FileSystemAccess MultiAuth authentication, ", System.getProperty("user.name"));
     } else {
       throw new ServiceException(FileSystemAccessException.ERROR.H09, security);
     }
