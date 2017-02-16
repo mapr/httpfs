@@ -478,11 +478,14 @@ public class Server {
     for (String name : System.getProperties().stringPropertyNames()) {
       String value = System.getProperty(name);
       if (name.startsWith(getPrefix() + ".")) {
-        config.set(name, value);
-        if (name.endsWith(".password") || name.endsWith(".secret")) {
-          value = "*MASKED*";
+        if(!(name.endsWith("authentication.type") &&
+                !config.get(name).toLowerCase().equals("simple"))) {
+          config.set(name, value);
+          if (name.endsWith(".password") || name.endsWith(".secret")) {
+            value = "*MASKED*";
+          }
+          log.info("System property sets  {}: {}", name, value);
         }
-        log.info("System property sets  {}: {}", name, value);
       }
     }
 
