@@ -408,7 +408,7 @@ elif [ "$1" = "stop" ] ; then
   if [ ! -z "$CATALINA_PID" ]; then
     if [ -s "$CATALINA_PID" ]; then
       if [ -f "$CATALINA_PID" ]; then
-        if grep --quiet kerberosEnable=true $MAPR_HOME/conf/mapr-clusters.conf; then
+        if grep --quiet secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
           FORCE=1
         else
           kill -0 `cat "$CATALINA_PID"` >/dev/null 2>&1
