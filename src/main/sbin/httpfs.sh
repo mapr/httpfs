@@ -53,9 +53,16 @@ catalina_opts="${catalina_opts} -Dhttpfs.admin.port=${HTTPFS_ADMIN_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
 
-if grep --quiet  secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
-catalina_opts="${catalina_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
-catalina_opts="${catalina_opts} -Dhttpfs.authentication.type=multiauth";
+if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
+  if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then
+    catalina_opts="${catalina_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    catalina_opts="${catalina_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
+else
+  if grep --quiet  secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
+    catalina_opts="${catalina_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    catalina_opts="${catalina_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
 fi
 
 print "Adding to CATALINA_OPTS:     ${catalina_opts}"

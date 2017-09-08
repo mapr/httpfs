@@ -165,7 +165,7 @@ else
 fi
 
 if [ "${CATALINA_PID}" = "" ]; then
-  export CATALINA_PID=/tmp/httpfs.pid
+  export CATALINA_PID=/opt/mapr/pid/httpfs.pid
   print "Setting CATALINA_PID:        ${CATALINA_PID}"
 else
   print "Using   CATALINA_PID:        ${CATALINA_PID}"
