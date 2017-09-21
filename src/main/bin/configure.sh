@@ -65,39 +65,33 @@ fi
 USAGE="usage: $0 [-h] [-R] [--secure] [--unsecure]"
 
 
-{ OPTS=`getopt -n "$0" -a -o suhR --long secure,unsecure,help,EC -- "$@"`; } 2>/dev/null
-eval set -- "$OPTS"
-
-if [ ${#} -lt 1 ]; then
-  echo "$USAGE"
-  return $RETURN_ERR 2>/dev/null || exit $RETURN_ERR
-fi
-
-for i ; do
+while [ ${#} -gt 0 ] ; do
   case "$1" in
-    -s | --secure)
-    isSecure=1
+    --secure)
+      isSecure=1
     shift ;;
 
-    -u | --unsecure)
-    isSecure=0
+    --unsecure)
+      isSecure=0
+    shift ;;
+
+    --custom)
+    # ignoring
     shift ;;
 
     -R)
-    isOnlyRoles=1;
+      isOnlyRoles=1;
     shift ;;
 
-    --EC)
+    -EC)
     # ignoring
-    shift
-    ;;
-    -h | --help)
-    echo "$USAGE"
-    return $RETURN_SUCCESS 2>/dev/null || exit $RETURN_SUCCESS
+      shift 2
     ;;
 
-    --)
-    shift ;;
+    -h)
+      echo "$USAGE"
+      return $RETURN_SUCCESS 2>/dev/null || exit $RETURN_SUCCESS
+    ;;
 
     *)
       echo "$USAGE"
@@ -196,6 +190,10 @@ fi
 #echo "$HTTPFS_VERSION" > "$MAPR_HOME"/httpfs/httpfsversion
 
 change_permissions
+
+if [ -f "$HTTPFS_CONF_DIR"/.not_configured_yet ] ; then
+  rm "$HTTPFS_CONF_DIR"/.not_configured_yet
+fi
 
 exit $RETURN_SUCCESS
 
