@@ -106,6 +106,8 @@ public class HttpFSFileSystem extends FileSystem {
 
   public static final String UPLOAD_CONTENT_TYPE= "application/octet-stream";
 
+  public static final String  PLAIN_TEXT_CONTENT_TYPE = "plain/text";
+
   public static enum FILE_TYPE {
     FILE, DIRECTORY, SYMLINK;
 
