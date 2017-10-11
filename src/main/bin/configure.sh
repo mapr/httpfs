@@ -79,6 +79,10 @@ while [ ${#} -gt 0 ] ; do
     # ignoring
     shift ;;
 
+     --customSecure)
+    # ignoring
+    shift ;;
+
     -R)
       isOnlyRoles=1;
     shift ;;
