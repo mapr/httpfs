@@ -165,7 +165,8 @@ if [ "$doRestart" == 1 ] && [ "$isOnlyRoles" != 1 ] ; then
       mkdir "$MAPR_CONF_DIR"/restart
   fi
 
-  echo "maprcli node services -action restart -name httpfs -nodes $(hostname)" > "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
+  echo "sudo -u ${MAPR_USER} maprcli node services -action restart -name httpfs -nodes $(hostname)" > "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
+  chmod +x "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
   chown $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
 fi
 
