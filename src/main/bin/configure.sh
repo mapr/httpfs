@@ -133,6 +133,7 @@ fi
 
 
 chown -R "$MAPR_USER":"$MAPR_GROUP" "$HTTPFS_HOME"
+chmod 600 "$HTTPFS_CONF_DIR"/httpfs-signature.secret
 }
 
 if ! [ -f "$HTTPFS_SECURE" ] ; then
