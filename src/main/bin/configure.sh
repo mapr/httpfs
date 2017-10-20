@@ -30,10 +30,12 @@ HTTPFS_CONF_DIR="$HTTPFS_HOME"/etc/hadoop/
 HTTPFS_SECURE="$HTTPFS_CONF_DIR"/isSecure
 DAEMON_CONF="$MAPR_HOME/conf/daemon.conf"
 WARDEN_HTTPFS_CONF="$HTTPFS_HOME"/etc/hadoop/warden.httpfs.conf
+HTTPFS_SHARE_CONF="$HTTPFS_HOME"/share/hadoop/httpfs/tomcat/conf/
 
 isSecure=${isSecure:-0}
 isOnlyRoles=${isOnlyRoles:-0}
 doRestart=${doRestart:-0}
+customSec=0
 
 # isSecure from server/configure.sh
 
@@ -80,7 +82,7 @@ while [ ${#} -gt 0 ] ; do
     shift ;;
 
      --customSecure)
-    # ignoring
+    customSec=1
     shift ;;
 
     -R)
@@ -143,6 +145,10 @@ if [ "$isSecure" == 1 ] ; then
    else
      echo "secure=true" > ${HTTPFS_SECURE}
      doRestart=1
+     if [ "$customSec" == 0 ] ; then
+        cp "$HTTPFS_SHARE_CONF"/server.xml "$HTTPFS_SHARE_CONF"/server.xml.orig
+        cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
+     fi
    fi
 else
    if grep --quiet  secure=false ${HTTPFS_SECURE}; then
