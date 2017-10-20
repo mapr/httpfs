@@ -116,7 +116,10 @@ if [ "$os400" != "true" ]; then
   _RUNJDB="$JAVA_HOME"/bin/jdb
 fi
 # ADDED for MapR-FS:
-export HADOOP_CLASSPATH=`/opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop classpath`
+
+if [ -f /opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop ] ; then
+  export HADOOP_CLASSPATH=`/opt/mapr/hadoop/hadoop-0.20.2/bin/hadoop classpath`
+fi
 CLASSPATH="$CLASSPATH":"$HADOOP_CLASSPATH"
 export CLASSPATH
 
