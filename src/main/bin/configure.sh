@@ -141,23 +141,15 @@ if ! [ -f "$HTTPFS_SECURE" ] ; then
 fi
 
 if [ "$isSecure" == 1 ] ; then
-   if grep --quiet  secure=true "$HTTPFS_SECURE"; then
-     doRestart=0
-   else
-     echo "secure=true" > ${HTTPFS_SECURE}
-     doRestart=1
-     if [ "$customSec" == 0 ] ; then
-        cp "$HTTPFS_SHARE_CONF"/server.xml "$HTTPFS_SHARE_CONF"/server.xml.orig
-        cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
-     fi
+   echo "secure=true" > ${HTTPFS_SECURE}
+   doRestart=1
+   if [ "$customSec" == 0 ] ; then
+      cp "$HTTPFS_SHARE_CONF"/server.xml "$HTTPFS_SHARE_CONF"/server.xml.orig
+      cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
    fi
 else
-   if grep --quiet  secure=false ${HTTPFS_SECURE}; then
-     doRestart=0
-   else
-     echo "secure=false" > ${HTTPFS_SECURE}
-     doRestart=1
-   fi
+   echo "secure=false" > ${HTTPFS_SECURE}
+   doRestart=1
 fi
 
 
