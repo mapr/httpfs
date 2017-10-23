@@ -34,7 +34,6 @@ HTTPFS_SHARE_CONF="$HTTPFS_HOME"/share/hadoop/httpfs/tomcat/conf/
 
 isSecure=${isSecure:-0}
 isOnlyRoles=${isOnlyRoles:-0}
-doRestart=${doRestart:-0}
 customSec=0
 
 # isSecure from server/configure.sh
@@ -142,14 +141,14 @@ fi
 
 if [ "$isSecure" == 1 ] ; then
    echo "secure=true" > ${HTTPFS_SECURE}
-   doRestart=1
    if [ "$customSec" == 0 ] ; then
-      cp "$HTTPFS_SHARE_CONF"/server.xml "$HTTPFS_SHARE_CONF"/server.xml.orig
       cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
    fi
 else
    echo "secure=false" > ${HTTPFS_SECURE}
-   doRestart=1
+   if [ "$customSec" == 0 ] ; then
+      cp "$HTTPFS_SHARE_CONF"/server.xml.orig "$HTTPFS_SHARE_CONF"/server.xml
+   fi
 fi
 
 
@@ -159,7 +158,7 @@ if ! [ -f ${MAPR_CONFD_DIR}/warden.httpfs.conf ] ; then
 fi
 
 
-if [ "$doRestart" == 1 ] && [ "$isOnlyRoles" != 1 ] ; then
+if ! [ -f "$HTTPFS_CONF_DIR"/.not_configured_yet ] ; then
   if ! [ -d "$MAPR_CONF_DIR"/restart ] ; then
       mkdir "$MAPR_CONF_DIR"/restart
   fi
