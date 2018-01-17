@@ -140,14 +140,25 @@ if ! [ -f "$HTTPFS_SECURE" ] ; then
 fi
 
 if [ "$isSecure" == 1 ] ; then
-   echo "secure=true" > ${HTTPFS_SECURE}
-   if [ "$customSec" == 0 ] ; then
-      cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
+   if grep --quiet  secure=true "$HTTPFS_SECURE"; then
+     doRestart=0
+   else
+     echo "secure=true" > ${HTTPFS_SECURE}
+     if [ "$customSec" == 0 ] ; then
+         cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
+     fi
+     doRestart=1
    fi
+
 else
-   echo "secure=false" > ${HTTPFS_SECURE}
-   if [ "$customSec" == 0 ] ; then
-      cp "$HTTPFS_SHARE_CONF"/server.xml.orig "$HTTPFS_SHARE_CONF"/server.xml
+   if grep --quiet  secure=false ${HTTPFS_SECURE}; then
+     doRestart=0
+   else
+     echo "secure=false" > ${HTTPFS_SECURE}
+     if [ "$customSec" == 0 ] ; then
+        cp "$HTTPFS_SHARE_CONF"/server.xml.orig "$HTTPFS_SHARE_CONF"/server.xml
+     fi
+     doRestart=1
    fi
 fi
 
@@ -159,13 +170,23 @@ fi
 
 
 if ! [ -f "$HTTPFS_CONF_DIR"/.not_configured_yet ] ; then
-  if ! [ -d "$MAPR_CONF_DIR"/restart ] ; then
-      mkdir "$MAPR_CONF_DIR"/restart
+  if [ "$doRestart" == 1 ] ; then
+    if ! [ -d "$MAPR_CONF_DIR"/restart ] ; then
+        mkdir "$MAPR_CONF_DIR"/restart
+    fi
+    cat <<EOF > "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
+      #!/bin/bash
+      isSecured=\$(head -1 ${MAPR_HOME}/conf/mapr-clusters.conf | grep -o 'secure=\w*' | cut -d= -f2)
+      if [ "\${isSecured}" = "true" ] && [ -f "${MAPR_HOME}/conf/mapruserticket" ]; then
+        export MAPR_TICKETFILE_LOCATION="${MAPR_HOME}/conf/mapruserticket"
+        maprcli node services -action restart -name httpfs -nodes $(hostname)
+      else
+        sudo -u ${MAPR_USER} maprcli node services -action restart -name httpfs -nodes $(hostname)
+      fi
+EOF
+    chmod +x "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
+    chown $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
   fi
-
-  echo "sudo -u ${MAPR_USER} maprcli node services -action restart -name httpfs -nodes $(hostname)" > "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
-  chmod +x "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
-  chown $MAPR_USER:$MAPR_GROUP "${MAPR_CONF_DIR}/restart/httpfs-${HTTPFS_VERSION}.restart"
 fi
 
 
