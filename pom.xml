@@ -45,7 +45,7 @@
     <log4j.version>1.2.16</log4j.version>
     <mapr.hadoop.version>1.0.3-mapr-5.1.0</mapr.hadoop.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-    <tomcat.version>6.0.32</tomcat.version>
+    <tomcat.version>7.0.82</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.revision>REVISION NOT AVAIL</httpfs.source.revision>
@@ -93,8 +93,8 @@
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
-        <artifactId>servlet-api</artifactId>
-        <version>2.5</version>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
@@ -157,7 +157,7 @@
     </dependency>
     <dependency>
       <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
+      <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -184,7 +184,7 @@
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-core</artifactId>
       <version>${mapr.hadoop.version}</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -497,7 +497,7 @@
                   <target>
                     <mkdir dir="downloads"/>
                     <get
-			    src="http://archive.apache.org/dist/tomcat/tomcat-6/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz"
+			    src="http://archive.apache.org/dist/tomcat/tomcat-7/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz"
                         dest="downloads/tomcat.tar.gz" verbose="true" skipexisting="true"/>
                     <delete dir="${project.build.directory}/tomcat.exp"/>
                     <mkdir dir="${project.build.directory}/tomcat.exp"/>
