@@ -58,6 +58,7 @@ public class FSOperations {
     json.put(HttpFSFileSystem.MODIFICATION_TIME_JSON, status.getModificationTime());
     json.put(HttpFSFileSystem.BLOCK_SIZE_JSON, status.getBlockSize());
     json.put(HttpFSFileSystem.REPLICATION_JSON, status.getReplication());
+    json.put(HttpFSFileSystem.IS_TABLE, status.isTable());
     return json;
   }
 

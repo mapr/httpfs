@@ -135,6 +135,7 @@ public class HttpFSFileSystem extends FileSystem {
   public static final String MODIFICATION_TIME_JSON = "modificationTime";
   public static final String BLOCK_SIZE_JSON = "blockSize";
   public static final String REPLICATION_JSON = "replication";
+  public static final String IS_TABLE = "isTable";
 
   public static final String FILE_CHECKSUM_JSON = "FileChecksum";
   public static final String CHECKSUM_ALGORITHM_JSON = "algorithm";
