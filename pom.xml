@@ -26,7 +26,7 @@
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-hdfs-httpfs</artifactId>
-  <version>1.0-mapr-1901</version>
+  <version>${mapr.hadoop.version}</version>
   <packaging>war</packaging>
 
   <name>Apache Hadoop HttpFS for mapr</name>
