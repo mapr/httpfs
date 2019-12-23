@@ -23,5 +23,6 @@ package org.apache.hadoop.fs;
 public class CommonConfigurationKeysPublic {
 
   public static final String FS_DEFAULT_NAME_KEY = "fs.default.name";
-  
+  public static final String HADOOP_WEBAPPS_CUSTOM_HEADERS_PATH = "hadoop.webapps.custom.headers.path";
+
 }
