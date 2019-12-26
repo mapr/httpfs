@@ -21,6 +21,7 @@ package org.apache.hadoop.fs.http.server;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.http.client.HttpFSFileSystem;
+import org.apache.hadoop.fs.http.server.FSOperations.FSFileStatus;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.OperationParam;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.AccessTimeParam;
 import org.apache.hadoop.fs.http.server.HttpFSParametersProvider.BlockSizeParam;
@@ -434,6 +435,8 @@ public class HttpFSServer {
       case APPEND: {
         Boolean hasData = params.get(DataParam.NAME, DataParam.class);
         if (!hasData) {
+          // check if file exists
+          fsExecute(user, doAs, new FSFileStatus(path));
           response = Response.temporaryRedirect(
             createUploadRedirectionURL(uriInfo,
               HttpFSFileSystem.Operation.APPEND)).build();
