@@ -39,3 +39,7 @@
 # The hostname HttpFS server runs on
 #
 # export HTTPFS_HTTP_HOSTNAME=`hostname -f`
+
+#The SSL protocol used by HttpFS
+#
+#export HTTPFS_SSL_ENABLED_PROTOCOL="TLSv1.2"

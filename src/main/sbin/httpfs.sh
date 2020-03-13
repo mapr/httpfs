@@ -52,6 +52,7 @@ catalina_opts="${catalina_opts} -Dhttpfs.temp.dir=${HTTPFS_TEMP}";
 catalina_opts="${catalina_opts} -Dhttpfs.admin.port=${HTTPFS_ADMIN_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
 catalina_opts="${catalina_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
+catalina_opts="${catalina_opts} -Dhttpfs.sslEnabledProtocols=${HTTPFS_SSL_ENABLED_PROTOCOL}";
 
 if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
   if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then

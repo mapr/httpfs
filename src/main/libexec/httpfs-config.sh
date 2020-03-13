@@ -143,6 +143,13 @@ else
   print "Using   HTTPFS_HTTP_HOSTNAME: ${HTTPFS_HTTP_HOSTNAME}"
 fi
 
+if [ "${HTTPFS_SSL_ENABLED_PROTOCOL}" = "" ]; then
+  export HTTPFS_SSL_ENABLED_PROTOCOL="TLSv1.2"
+  print "Setting HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
+else
+  print "Using   HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
+fi
+
 if [ "${CATALINA_BASE}" = "" ]; then
   export CATALINA_BASE=${HTTPFS_HOME}/share/hadoop/httpfs/tomcat
   print "Setting CATALINA_BASE:       ${CATALINA_BASE}"
