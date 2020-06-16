@@ -78,8 +78,18 @@ if [ "$1" = "debug" ] ; then
   fi
 fi
 
+if java_version=$("$JAVA_HOME"/bin/java -version 2>&1 | grep -F version | \
+    head -n1 | cut -d ' ' -f 3); then
+  if [ -n "$java_version" ] && echo "$java_version" | grep -qiv Error > /dev/null 2>&1 ; then
+    # java version "11.0.2" 2019-01-15 LTS
+    # openjdk version "1.8.0_212"
+    java_maj_version=$(echo "$java_version" | cut -d '.' -f 1 | sed -e 's/"//')
+    java_min_version=$(echo "$java_version" | cut -d '.' -f 2)
+  fi
+fi
+
 # Don't override the endorsed dir if the user has set it previously
-if [ -z "$JAVA_ENDORSED_DIRS" ]; then
+if [ -z "$JAVA_ENDORSED_DIRS" -a "$java_maj_version" -eq 1 ]; then
   # Set the default -Djava.endorsed.dirs argument
   JAVA_ENDORSED_DIRS="$CATALINA_HOME"/endorsed
 fi
