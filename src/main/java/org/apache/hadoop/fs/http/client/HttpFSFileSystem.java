@@ -66,6 +66,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import static org.apache.hadoop.fs.http.client.HttpFSUtils.jsonParse;
+
 /**
  * HttpFSServer implementation of the FileSystemAccess FileSystem.
  * <p/>
@@ -553,7 +555,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn = getConnection(Operation.RENAME.getMethod(),
                                            params, src, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     return (Boolean) json.get(RENAME_JSON);
   }
 
@@ -651,7 +653,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn = getConnection(Operation.DELETE.getMethod(),
                                            params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     return (Boolean) json.get(DELETE_JSON);
   }
 
@@ -672,7 +674,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn = getConnection(Operation.LISTSTATUS.getMethod(),
                                            params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     json = (JSONObject) json.get(FILE_STATUSES_JSON);
     JSONArray jsonArray = (JSONArray) json.get(FILE_STATUS_JSON);
     FileStatus[] array = new FileStatus[jsonArray.size()];
@@ -720,7 +722,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn = getConnection(Operation.MKDIRS.getMethod(),
                                            params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     return (Boolean) json.get(MKDIRS_JSON);
   }
 
@@ -741,7 +743,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn = getConnection(Operation.GETFILESTATUS.getMethod(),
                                            params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     json = (JSONObject) json.get(FILE_STATUS_JSON);
     f = makeQualified(f);
     return createFileStatus(f, json);
@@ -760,7 +762,7 @@ public class HttpFSFileSystem extends FileSystem
         getConnection(Operation.GETHOMEDIRECTORY.getMethod(), params,
                       new Path(getUri().toString(), "/"), false);
       HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-      JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+      JSONObject json = (JSONObject) jsonParse(conn);
       return new Path((String) json.get(HOME_DIR_JSON));
     } catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -844,7 +846,7 @@ public class HttpFSFileSystem extends FileSystem
     HttpURLConnection conn =
       getConnection(Operation.SETREPLICATION.getMethod(), params, src, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
-    JSONObject json = (JSONObject) HttpFSUtils.jsonParse(conn);
+    JSONObject json = (JSONObject) jsonParse(conn);
     return (Boolean) json.get(SET_REPLICATION_JSON);
   }
 
@@ -918,7 +920,7 @@ public class HttpFSFileSystem extends FileSystem
     params.put(FSACTION_PARAM, mode.toString());
     HttpURLConnection conn = getConnection(Operation.CHECKACCESS.getMethod(),
             params, path, true);
-    validateResponse(conn,HttpURLConnection.HTTP_OK);
+    HttpFSUtils.validateResponse(conn,HttpURLConnection.HTTP_OK);
 
   }
 
@@ -930,7 +932,7 @@ public class HttpFSFileSystem extends FileSystem
       getConnection(Operation.GETCONTENTSUMMARY.getMethod(), params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
     JSONObject json = (JSONObject) ((JSONObject)
-      HttpFSUtils.jsonParse(conn)).get(CONTENT_SUMMARY_JSON);
+      jsonParse(conn)).get(CONTENT_SUMMARY_JSON);
     return new ContentSummary((Long) json.get(CONTENT_SUMMARY_LENGTH_JSON),
                               (Long) json.get(CONTENT_SUMMARY_FILE_COUNT_JSON),
                               (Long) json.get(CONTENT_SUMMARY_DIRECTORY_COUNT_JSON),
@@ -948,7 +950,7 @@ public class HttpFSFileSystem extends FileSystem
       getConnection(Operation.GETFILECHECKSUM.getMethod(), params, f, true);
     HttpFSUtils.validateResponse(conn, HttpURLConnection.HTTP_OK);
     final JSONObject json = (JSONObject) ((JSONObject)
-      HttpFSUtils.jsonParse(conn)).get(FILE_CHECKSUM_JSON);
+      jsonParse(conn)).get(FILE_CHECKSUM_JSON);
     return new FileChecksum() {
       @Override
       public String getAlgorithmName() {
@@ -992,7 +994,7 @@ public class HttpFSFileSystem extends FileSystem
   }
 
 
-  @Override
+  //@Override
   public List<Token<?>> getDelegationTokens(final String renewer)
     throws IOException {
     return doAsRealUserIfNecessary(new Callable<List<Token<?>>>() {
