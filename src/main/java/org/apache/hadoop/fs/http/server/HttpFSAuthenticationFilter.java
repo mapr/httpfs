@@ -35,7 +35,7 @@ import java.util.Properties;
  * Subclass of hadoop-auth <code>AuthenticationFilter</code> that obtains its configuration
  * from HttpFSServer's server configuration.
  */
-public class AuthFilter extends AuthenticationFilter {
+public class HttpFSAuthenticationFilter extends AuthenticationFilter {
   private static final String CONF_PREFIX = "httpfs.authentication.";
 
   private static final String SIGNATURE_SECRET_FILE = SIGNATURE_SECRET + ".file";
@@ -67,6 +67,11 @@ public class AuthFilter extends AuthenticationFilter {
       }
     }
 
+    if (props.getProperty(AUTH_TYPE).equals("kerberos")) {
+      props.setProperty(AUTH_TYPE,
+                        HttpFSKerberosAuthenticationHandler.class.getName());
+    }
+
     String signatureSecretFile = props.getProperty(SIGNATURE_SECRET_FILE, null);
     if (signatureSecretFile == null) {
       throw new RuntimeException("Undefined property: " + SIGNATURE_SECRET_FILE);
@@ -90,6 +95,5 @@ public class AuthFilter extends AuthenticationFilter {
     }
     return props;
   }
-
 
 }
