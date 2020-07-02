@@ -76,7 +76,7 @@ import java.security.Principal;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.hadoop.http.JettyUtils;
 /**
  * Main class of HttpFSServer server.
  * <p/>
@@ -227,7 +227,8 @@ public class HttpFSServer {
    */
   @GET
   @Path("{path:.*}")
-  @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_OCTET_STREAM + "; " + JettyUtils.UTF_8,
+      MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8})
   public Response get(@Context Principal user,
                       @PathParam("path") String path,
                       @QueryParam(OperationParam.NAME) OperationParam op,
@@ -368,7 +369,7 @@ public class HttpFSServer {
    */
   @DELETE
   @Path("{path:.*}")
-  @Produces(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
   public Response delete(@Context Principal user,
                       @PathParam("path") String path,
                       @QueryParam(OperationParam.NAME) OperationParam op,
@@ -419,7 +420,7 @@ public class HttpFSServer {
   @POST
   @Path("{path:.*}")
   @Consumes({"*/*"})
-  @Produces({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8})
   public Response post(InputStream is,
                        @Context Principal user,
                        @Context UriInfo uriInfo,
@@ -495,7 +496,7 @@ public class HttpFSServer {
   @PUT
   @Path("{path:.*}")
   @Consumes({"*/*"})
-  @Produces({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8})
   public Response put(InputStream is,
                        @Context Principal user,
                        @Context UriInfo uriInfo,

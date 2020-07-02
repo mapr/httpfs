@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
-import org.mortbay.jetty.Server;
+import org.eclipse.jetty.server.Server;
 
 public class TestJettyHelper implements MethodRule {
 
@@ -72,9 +72,18 @@ public class TestJettyHelper implements MethodRule {
       ServerSocket ss = new ServerSocket(0, 50, localhost);
       int port = ss.getLocalPort();
       ss.close();
-      Server server = new Server(0);
-      server.getConnectors()[0].setHost(host);
-      server.getConnectors()[0].setPort(port);
+      Server server = new Server();
+      ServerConnector conn = new ServerConnector(server);
+      HttpConfiguration http_config = new HttpConfiguration();
+      http_config.setRequestHeaderSize(JettyUtils.HEADER_SIZE);
+      http_config.setResponseHeaderSize(JettyUtils.HEADER_SIZE);
+      http_config.setSecureScheme("https");
+      http_config.addCustomizer(new SecureRequestCustomizer());
+      ConnectionFactory connFactory = new HttpConnectionFactory(http_config);
+      conn.addConnectionFactory(connFactory);
+      conn.setHost(host);
+      conn.setPort(port);
+      server.addConnector(conn);
       return server;
     } catch (Exception ex) {
       throw new RuntimeException("Could not stop embedded servlet container, " + ex.getMessage(), ex);
@@ -90,8 +99,8 @@ public class TestJettyHelper implements MethodRule {
     Server server = getJettyServer();
     try {
       InetAddress add =
-        InetAddress.getByName(server.getConnectors()[0].getHost());
-      int port = server.getConnectors()[0].getPort();
+        InetAddress.getByName(((ServerConnector)server.getConnectors()[0]).getHost());
+      int port = ((ServerConnector)server.getConnectors()[0]).getPort();
       return new InetSocketAddress(add, port);
     } catch (UnknownHostException ex) {
       throw new RuntimeException(ex);
@@ -128,7 +137,9 @@ public class TestJettyHelper implements MethodRule {
       throw new IllegalStateException("This test does not use @TestJetty");
     }
     try {
-      return new URL("http://" + server.getConnectors()[0].getHost() + ":" + server.getConnectors()[0].getPort());
+      return new URL("http://" +
+              ((ServerConnector)server.getConnectors()[0]).getHost() + ":" +
+              ((ServerConnector)server.getConnectors()[0]).getPort());
     } catch (MalformedURLException ex) {
       throw new RuntimeException("It should never happen, " + ex.getMessage(), ex);
     }

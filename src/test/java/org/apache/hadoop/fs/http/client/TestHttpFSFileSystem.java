@@ -54,8 +54,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.webapp.WebAppContext;
 
 @RunWith(value = Parameterized.class)
 public class TestHttpFSFileSystem extends HFSTestCase {
@@ -97,7 +97,7 @@ public class TestHttpFSFileSystem extends HFSTestCase {
     URL url = cl.getResource("webapp");
     WebAppContext context = new WebAppContext(url.getPath(), "/webhdfs");
     Server server = TestJettyHelper.getJettyServer();
-    server.addHandler(context);
+    server.setHandler(context);
     server.start();
   }
 
