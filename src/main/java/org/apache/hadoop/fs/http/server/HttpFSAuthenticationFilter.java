@@ -17,14 +17,13 @@
  */
 package org.apache.hadoop.fs.http.server;
 
+import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.authentication.client.AuthenticationException;
 import org.apache.hadoop.security.authentication.server.AuthenticationFilter;
-import org.apache.hadoop.security.authentication.server.AuthenticationToken;
+import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticationFilter;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -35,7 +34,10 @@ import java.util.Properties;
  * Subclass of hadoop-auth <code>AuthenticationFilter</code> that obtains its configuration
  * from HttpFSServer's server configuration.
  */
-public class HttpFSAuthenticationFilter extends AuthenticationFilter {
+@InterfaceAudience.Private
+public class HttpFSAuthenticationFilter
+    extends DelegationTokenAuthenticationFilter {
+
   private static final String CONF_PREFIX = "httpfs.authentication.";
 
   private static final String SIGNATURE_SECRET_FILE = SIGNATURE_SECRET + ".file";
@@ -53,7 +55,8 @@ public class HttpFSAuthenticationFilter extends AuthenticationFilter {
    * @return hadoop-auth configuration read from HttpFSServer's configuration.
    */
   @Override
-  protected Properties getConfiguration(String configPrefix, FilterConfig filterConfig) {
+  protected Properties getConfiguration(String configPrefix,
+      FilterConfig filterConfig) throws ServletException{
     Properties props = new Properties();
     Configuration conf = HttpFSServerWebApp.get().getConfig();
 
@@ -65,11 +68,6 @@ public class HttpFSAuthenticationFilter extends AuthenticationFilter {
         name = name.substring(CONF_PREFIX.length());
         props.setProperty(name, value);
       }
-    }
-
-    if (props.getProperty(AUTH_TYPE).equals("kerberos")) {
-      props.setProperty(AUTH_TYPE,
-                        HttpFSKerberosAuthenticationHandler.class.getName());
     }
 
     String signatureSecretFile = props.getProperty(SIGNATURE_SECRET_FILE, null);
@@ -89,9 +87,6 @@ public class HttpFSAuthenticationFilter extends AuthenticationFilter {
       props.setProperty(AuthenticationFilter.SIGNATURE_SECRET, secret.toString());
     } catch (IOException ex) {
       throw new RuntimeException("Could not read HttpFS signature secret file: " + signatureSecretFile);
-    }
-    if (!props.getProperty("type").equals("simple")) {
-      props.put("type", "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler");
     }
     return props;
   }
