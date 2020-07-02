@@ -27,7 +27,7 @@
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-hdfs-httpfs</artifactId>
   <version>${mapr.hadoop.version}</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <name>Apache Hadoop HttpFS for mapr</name>
   <description>Apache Hadoop HttpFS for mapr</description>
@@ -78,11 +78,9 @@
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <tomcat.version>9.0.36</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
-    <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.revision>REVISION NOT AVAIL</httpfs.source.revision>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <httpfs.build.timestamp>${maven.build.timestamp}</httpfs.build.timestamp>
-    <httpfs.tomcat.dist.dir>${project.build.directory}/${project.artifactId}-${project.version}/share/hadoop/httpfs/tomcat</httpfs.tomcat.dist.dir>
     <kerberos.realm>LOCALHOST</kerberos.realm>
     <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
     <jetty.version>9.3.11.v20160721</jetty.version>
@@ -297,7 +295,6 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
@@ -583,23 +580,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-war</id>
-            <phase>package</phase>
-            <goals>
-              <goal>war</goal>
-            </goals>
-            <configuration>
-              <warName>webhdfs</warName>
-              <webappDirectory>${project.build.directory}/webhdfs</webappDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+
     </plugins>
   </build>
 
@@ -682,99 +663,6 @@
                   <descriptors>
                     <descriptor>${basedir}/src/main/assemblies/hadoop-httpfs-dist.xml</descriptor>
                   </descriptors>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <!-- Downloading Tomcat TAR.GZ, using downloads/ dir to avoid downloading over an over -->
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <executions>
-              <execution>
-                <id>dist</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>package</phase>
-                <configuration>
-                  <target>
-                    <mkdir dir="downloads"/>
-                    <get
-			    src="https://archive.apache.org/dist/tomcat/tomcat-9/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz"
-                        dest="downloads/tomcat.tar.gz" verbose="true" skipexisting="true"/>
-                    <delete dir="${project.build.directory}/tomcat.exp"/>
-                    <mkdir dir="${project.build.directory}/tomcat.exp"/>
-
-                    <!-- Using Unix script to preserve file permissions -->
-                    <echo file="${project.build.directory}/tomcat-untar.sh">
-
-                      which cygpath 2&gt; /dev/null
-                      if [ $? = 1 ]; then
-                      BUILD_DIR="${project.build.directory}"
-                      else
-                      BUILD_DIR=`cygpath --unix '${project.build.directory}'`
-                      fi
-                      cd $BUILD_DIR/tomcat.exp
-                      tar xzf ${basedir}/downloads/tomcat.tar.gz
-                    </echo>
-                    <exec executable="sh" dir="${project.build.directory}" failonerror="true">
-                      <arg line="./tomcat-untar.sh"/>
-                    </exec>
-
-                    <move file="${project.build.directory}/tomcat.exp/apache-tomcat-${tomcat.version}"
-                          tofile="${httpfs.tomcat.dist.dir}"/>
-                    <delete dir="${project.build.directory}/tomcat.exp"/>
-                    <delete dir="${httpfs.tomcat.dist.dir}/webapps"/>
-                    <mkdir dir="${httpfs.tomcat.dist.dir}/webapps"/>
-                    <delete file="${httpfs.tomcat.dist.dir}/conf/server.xml"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml.orig"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml.https"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/logging.properties"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/setclasspath.sh"
-                          toDir="${httpfs.tomcat.dist.dir}/bin"/>
-                    <copy file="${basedir}/src/main/tomcat/catalina.sh"
-                          toDir="${httpfs.tomcat.dist.dir}/bin"/>
-                    <copy toDir="${httpfs.tomcat.dist.dir}/webapps/ROOT">
-                      <fileset dir="${basedir}/src/main/tomcat/ROOT"/>
-                    </copy>
-                    <copy toDir="${httpfs.tomcat.dist.dir}/webapps/webhdfs">
-                      <fileset dir="${project.build.directory}/webhdfs"/>
-                    </copy>
-                    <copy file="${basedir}/src/main/tomcat/tomcat-users.xml"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                  </target>
-                </configuration>
-              </execution>
-              <execution>
-                <id>tar</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <configuration>
-                  <target>
-                    <!-- Using Unix script to preserve symlinks -->
-                    <echo file="${project.build.directory}/dist-maketar.sh">
-
-                      which cygpath 2&gt; /dev/null
-                      if [ $? = 1 ]; then
-                      BUILD_DIR="${project.build.directory}"
-                      else
-                      BUILD_DIR=`cygpath --unix '${project.build.directory}'`
-                      fi
-                      cd $BUILD_DIR
-                      tar czf ${project.artifactId}-${project.version}.tar.gz ${project.artifactId}-${project.version}
-                    </echo>
-                    <exec executable="sh" dir="${project.build.directory}" failonerror="true">
-                      <arg line="./dist-maketar.sh"/>
-                    </exec>
-                  </target>
                 </configuration>
               </execution>
             </executions>
