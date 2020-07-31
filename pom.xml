@@ -33,17 +33,48 @@
   <description>Apache Hadoop HttpFS for mapr</description>
 
   <repositories>
+    <!-- Temporary repo -->
     <repository>
-      <id>mapr release</id>
+      <id>mapr.release</id>
+      <url>${env.MAPR_MAVEN_REPO}</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>repository.mapr.com</id>
       <url>http://repository.mapr.com/maven/</url>
-      <snapshots><enabled>true</enabled></snapshots>
-      <releases><enabled>true</enabled></releases>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>central</id>
+      <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>apache.snapshots.repo</id>
+      <url>https://repository.apache.org/content/groups/snapshots</url>
+      <name>Apache Snapshots Repository</name>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
     </repository>
   </repositories>
 
   <properties>
     <log4j.version>1.2.17</log4j.version>
     <mapr.hadoop.version>1.0.3-mapr-5.1.0</mapr.hadoop.version>
+    <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <tomcat.version>9.0.36</tomcat.version>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
@@ -68,6 +99,101 @@
           <exclusion>
             <groupId>com.mapr.hadoop</groupId>
             <artifactId>maprfs</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.mapr.security</groupId>
+        <artifactId>mapr-security-web</artifactId>
+        <version>${mapr.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.mapr.hadoop</groupId>
+            <artifactId>maprfs</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-web</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.kohsuke</groupId>
+            <artifactId>libpam4j</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>failureaccess</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.guava</groupId>
+            <artifactId>listenablefuture</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.j2objc</groupId>
+            <artifactId>j2objc-annotations</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -185,6 +311,10 @@
       <artifactId>hadoop-core</artifactId>
       <version>${mapr.hadoop.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+    <groupId>com.mapr.security</groupId>
+    <artifactId>mapr-security-web</artifactId>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

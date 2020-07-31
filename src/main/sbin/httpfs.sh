@@ -18,6 +18,7 @@ MAPR_IMPERSONATION_ENABLED="True"
 export MAPR_IMPERSONATION_ENABLED
 
 #gives access to MAPR_ECOSYSTEM_LOGIN_OPTS
+MAPR_HOME="/opt/mapr"
 export BASEMAPR=${MAPR_HOME:-/opt/mapr}
 env=${BASEMAPR}/conf/env.sh
 [ -f $env ] && . $env
@@ -39,6 +40,15 @@ BASEDIR=`dirname ${PRG}`
 BASEDIR=`cd ${BASEDIR}/..;pwd`
 
 source ${HADOOP_LIBEXEC_DIR:-${BASEDIR}/libexec}/httpfs-config.sh
+
+if test -z ${JAVA_HOME}; then
+  JAVA_BIN=java
+else
+  JAVA_BIN=${JAVA_HOME}/bin/java
+fi
+WEB_APP_HOME=${HTTPFS_CATALINA_HOME}/webapps/webhdfs/WEB-INF
+${JAVA_BIN} -cp ${WEB_APP_HOME}/classes:${WEB_APP_HOME}/lib/*:${MAPR_HOME}/lib/* org.apache.hadoop.lib.util.SSLVariablesUtil updateSslConf ${HTTPFS_CATALINA_HOME}/conf/server.xml 2>>/dev/null
+
 
 # The Java System property 'httpfs.http.port' it is not used by HttpFS,
 # it is used in Tomcat's server.xml configuration file
