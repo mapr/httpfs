@@ -123,6 +123,20 @@ if [[ -n "${HTTPFS_SSL_ENABLED}" ]]; then
     httpfs_opts="${httpfs_opts} -Dhttpfs.ssl.enabled=${HTTPFS_SSL_ENABLED}";
 fi
 
+if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
+  if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    httpfs_opts="${httpfs_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
+else
+  if grep --quiet  secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    httpfs_opts="${httpfs_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
+fi
+
+httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib"
+
 export HTTPFS_OPTS=$httpfs_opts
 
 mapr_home_dir=${MAPR_HOME:-/opt/mapr}

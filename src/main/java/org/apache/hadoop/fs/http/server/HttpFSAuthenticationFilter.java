@@ -88,6 +88,10 @@ public class HttpFSAuthenticationFilter
     } catch (IOException ex) {
       throw new RuntimeException("Could not read HttpFS signature secret file: " + signatureSecretFile);
     }
+
+    if (!props.getProperty("type").equals("simple")) {
+      props.put("type", "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler");
+    }
     return props;
   }
 
