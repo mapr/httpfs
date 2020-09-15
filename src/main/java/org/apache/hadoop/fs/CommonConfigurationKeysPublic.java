@@ -25,4 +25,29 @@ public class CommonConfigurationKeysPublic {
   public static final String FS_DEFAULT_NAME_KEY = "fs.default.name";
   public static final String HADOOP_WEBAPPS_CUSTOM_HEADERS_PATH = "hadoop.webapps.custom.headers.path";
 
+  /**
+   * @see
+   * <a href="{@docRoot}/../hadoop-project-dist/hadoop-common/core-default.xml">
+   * core-default.xml</a>
+   */
+  public static final String HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS =
+          "hadoop.security.sensitive-config-keys";
+  public static final String HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS_DEFAULT =
+          String.join(",",
+                  "secret$",
+                  "password$",
+                  "ssl.keystore.pass$",
+                  "fs.s3.*[Ss]ecret.?[Kk]ey",
+                  "fs.s3a.*.server-side-encryption.key",
+                  "fs.azure\\.account.key.*",
+                  "credential$",
+                  "oauth.*token$",
+                  HADOOP_SECURITY_SENSITIVE_CONFIG_KEYS);
+
+  /** See <a href="{@docRoot}/../core-default.html">core-default.xml</a> */
+  public static final String HADOOP_SECURITY_AUTHORIZATION =
+          "hadoop.security.authorization";
+  /** See <a href="{@docRoot}/../core-default.html">core-default.xml</a> */
+  public static final String HADOOP_SECURITY_INSTRUMENTATION_REQUIRES_ADMIN =
+          "hadoop.security.instrumentation.requires.admin";
 }
