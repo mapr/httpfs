@@ -143,9 +143,6 @@ if [ "$isSecure" == 1 ] ; then
      doRestart=0
    else
      echo "secure=true" > ${HTTPFS_SECURE}
-#     if [ "$customSec" == 0 ] ; then
-#         cp "$HTTPFS_SHARE_CONF"/server.xml.https "$HTTPFS_SHARE_CONF"/server.xml
-#     fi
      doRestart=1
    fi
 
@@ -153,14 +150,17 @@ else
    if grep --quiet  secure=false ${HTTPFS_SECURE}; then
      doRestart=0
    else
-#     echo "secure=false" > ${HTTPFS_SECURE}
-#     if [ "$customSec" == 0 ] ; then
-#        cp "$HTTPFS_SHARE_CONF"/server.xml.orig "$HTTPFS_SHARE_CONF"/server.xml
-#     fi
+     echo "secure=false" > ${HTTPFS_SECURE}
      doRestart=1
    fi
 fi
 
+if [[ -f "/opt/mapr/conf/ssl-server.xml" ]]; then
+  ln -s /opt/mapr/conf/ssl-server.xml "$HTTPFS_CONF_DIR/ssl-server.xml"
+fi
+if [[ -f "/opt/mapr/conf/ssl-client.xml" ]]; then
+  ln -s /opt/mapr/conf/ssl-client.xml "$HTTPFS_CONF_DIR/ssl-client.xml"
+fi
 
 if ! [ -f ${MAPR_CONFD_DIR}/warden.httpfs.conf ] ; then
   cp ${WARDEN_HTTPFS_CONF} ${MAPR_CONFD_DIR}

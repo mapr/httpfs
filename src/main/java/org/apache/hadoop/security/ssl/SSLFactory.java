@@ -19,6 +19,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.security.GeneralSecurityException;
@@ -114,7 +115,7 @@ public class SSLFactory implements ConnectionConfigurator {
             throw new IllegalArgumentException("mode cannot be NULL");
         }
         this.mode = mode;
-        Configuration sslConf = readSSLConfiguration(conf, mode);
+        Configuration sslConf = readSSLConfiguration(conf, mode,null);
 
         requireClientCert = sslConf.getBoolean(SSL_REQUIRE_CLIENT_CERT_KEY,
                 SSL_REQUIRE_CLIENT_CERT_DEFAULT);
@@ -137,7 +138,9 @@ public class SSLFactory implements ConnectionConfigurator {
     }
 
     public static Configuration readSSLConfiguration(Configuration conf,
-                                                     org.apache.hadoop.security.ssl.SSLFactory.Mode mode) {
+                                                     org.apache.hadoop.security.ssl.SSLFactory.Mode mode,
+                                                     String confDir) {
+
         Configuration sslConf = new Configuration(false);
         sslConf.setBoolean(SSL_REQUIRE_CLIENT_CERT_KEY, conf.getBoolean(
                 SSL_REQUIRE_CLIENT_CERT_KEY, SSL_REQUIRE_CLIENT_CERT_DEFAULT));
@@ -149,8 +152,11 @@ public class SSLFactory implements ConnectionConfigurator {
             sslConfResource = conf.get(SSL_SERVER_CONF_KEY,
                     SSL_SERVER_CONF_DEFAULT);
         }
-        LOG.info("SVETA: sslConfResource="+sslConfResource);
-        sslConf.addResource(new Path(sslConfResource));
+        if (confDir != null){
+            sslConf.addResource(new Path(confDir+ File.separator+sslConfResource));
+        } else {
+            sslConf.addResource(sslConfResource);
+        }
         return sslConf;
     }
 

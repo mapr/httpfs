@@ -19,7 +19,10 @@ package org.apache.hadoop.fs.http.server;
 
 import static org.apache.hadoop.util.StringUtils.startupShutdownMessage;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -28,6 +31,7 @@ import java.net.URL;
 import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.ConfigurationWithLogging;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.http.HttpServer2;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.security.ssl.SSLFactory;
@@ -42,21 +46,22 @@ public class HttpFSServerWebServer {
   private static final Logger LOG =
       LoggerFactory.getLogger(HttpFSServerWebServer.class);
 
+  private static final String HTTPFS_CONFIG_DIR_KEY="httpfs.config.dir";
   private static final String HTTPFS_DEFAULT_XML = "httpfs-default.xml";
   private static final String HTTPFS_SITE_XML = "httpfs-site.xml";
 
   // HTTP properties
-  static final String HTTP_PORT_KEY = "hadoop.httpfs.http.port";
+  static final String HTTP_PORT_KEY = "httpfs.http.port";
   private static final int HTTP_PORT_DEFAULT = 14000;
-  static final String HTTP_HOST_KEY = "hadoop.httpfs.http.host";
+  static final String HTTP_HOST_KEY = "httpfs.http.host";
   private static final String HTTP_HOST_DEFAULT = "0.0.0.0";
 
   // SSL properties
-  private static final String SSL_ENABLED_KEY = "hadoop.httpfs.ssl.enabled";
+  private static final String SSL_ENABLED_KEY = "httpfs.ssl.enabled";
   private static final boolean SSL_ENABLED_DEFAULT = false;
 
   private static final String HTTP_ADMINS_KEY =
-      "hadoop.httpfs.http.administrators";
+      "httpfs.http.administrators";
 
   private static final String NAME = "webhdfs";
   private static final String SERVLET_PATH = "/webhdfs";
@@ -71,25 +76,6 @@ public class HttpFSServerWebServer {
 
   HttpFSServerWebServer(Configuration conf, Configuration sslConf) throws
       Exception {
-    // Override configuration with deprecated environment variables.
-    deprecateEnv("HTTPFS_TEMP", conf, HttpServer2.HTTP_TEMP_DIR_KEY,
-        HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_HTTP_PORT", conf, HTTP_PORT_KEY,
-        HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_MAX_THREADS", conf,
-        HttpServer2.HTTP_MAX_THREADS_KEY, HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_MAX_HTTP_HEADER_SIZE", conf,
-        HttpServer2.HTTP_MAX_REQUEST_HEADER_SIZE_KEY, HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_MAX_HTTP_HEADER_SIZE", conf,
-        HttpServer2.HTTP_MAX_RESPONSE_HEADER_SIZE_KEY, HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_SSL_ENABLED", conf, SSL_ENABLED_KEY,
-        HTTPFS_SITE_XML);
-    deprecateEnv("HTTPFS_SSL_KEYSTORE_FILE", sslConf,
-        SSLFactory.SSL_SERVER_KEYSTORE_LOCATION,
-        SSLFactory.SSL_SERVER_CONF_DEFAULT);
-    deprecateEnv("HTTPFS_SSL_KEYSTORE_PASS", sslConf,
-        SSLFactory.SSL_SERVER_KEYSTORE_PASSWORD,
-        SSLFactory.SSL_SERVER_CONF_DEFAULT);
 
     boolean sslEnabled = conf.getBoolean(SSL_ENABLED_KEY,
         SSL_ENABLED_DEFAULT);
@@ -107,27 +93,6 @@ public class HttpFSServerWebServer {
         .setACL(new AccessControlList(conf.get(HTTP_ADMINS_KEY, " ")))
         .addEndpoint(endpoint)
         .build();
-  }
-
-  /**
-   * Load the deprecated environment variable into the configuration.
-   *
-   * @param varName the environment variable name
-   * @param conf the configuration
-   * @param propName the configuration property name
-   * @param confFile the configuration file name
-   */
-  private static void deprecateEnv(String varName, Configuration conf,
-                                   String propName, String confFile) {
-    String value = System.getenv(varName);
-    if (value == null) {
-      return;
-    }
-    String propValue = conf.get(propName);
-    LOG.warn("Environment variable {} = '{}' is deprecated and overriding"
-            + " property {} = '{}', please set the property in {} instead.",
-        varName, value, propName, propValue, confFile);
-    conf.set(propName, value, "environment variable " + varName);
   }
 
   public void start() throws IOException {
@@ -160,8 +125,15 @@ public class HttpFSServerWebServer {
     startupShutdownMessage(HttpFSServerWebServer.class, args, LOG);
     Configuration conf = new ConfigurationWithLogging(
         new Configuration(true));
+
+    String configDir = System.getProperty(HTTPFS_CONFIG_DIR_KEY, null);
+    if (configDir != null){
+      conf.addResource(new Path(configDir + File.separator + HTTPFS_SITE_XML));
+    }
+
     Configuration sslConf = new ConfigurationWithLogging(
-        SSLFactory.readSSLConfiguration(conf, SSLFactory.Mode.SERVER));
+        SSLFactory.readSSLConfiguration(conf, SSLFactory.Mode.SERVER, configDir));
+
     HttpFSServerWebServer webServer =
         new HttpFSServerWebServer(conf, sslConf);
     webServer.start();

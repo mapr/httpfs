@@ -119,9 +119,18 @@ httpfs_opts="${httpfs_opts} -Dhttpfs.home.dir=${HTTPFS_HOME}";
 httpfs_opts="${httpfs_opts} -Dhttpfs.log.dir=${HTTPFS_LOG}";
 httpfs_opts="${httpfs_opts} -Dhttpfs.temp.dir=${HTTPFS_TEMP}";
 httpfs_opts="${httpfs_opts} -Dhttpfs.http.hostname=${HTTPFS_HOST_NAME:-$(hostname -f)}";
+
 if [[ -n "${HTTPFS_SSL_ENABLED}" ]]; then
     httpfs_opts="${httpfs_opts} -Dhttpfs.ssl.enabled=${HTTPFS_SSL_ENABLED}";
 fi
+if [ "${HTTPFS_SSL_ENABLED_PROTOCOL}" = "" ]; then
+  export HTTPFS_SSL_ENABLED_PROTOCOL="TLSv1.2"
+  print "Setting HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
+else
+  print "Using   HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
+fi
+httpfs_opts="${httpfs_opts} -Dhttpfs.sslEnabledProtocols=${HTTPFS_SSL_ENABLED_PROTOCOL}"
+
 
 if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
   if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then
@@ -135,7 +144,7 @@ else
   fi
 fi
 
-httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib"
+httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib -Dlog4j.configuration=file://${HTTPFS_HOME}/etc/hadoop/httpfs-log4j.properties"
 
 export HTTPFS_OPTS=$httpfs_opts
 
