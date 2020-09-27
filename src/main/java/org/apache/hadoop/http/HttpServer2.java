@@ -310,7 +310,6 @@ public final class HttpServer2 implements FilterContainer {
          * Load SSL properties from the SSL configuration.
          */
         private void loadSSLConfiguration() throws IOException {
-            LOG.info("SVETA loadSSLConfiguration");
             if (sslConf == null) {
                 return;
             }
@@ -318,26 +317,19 @@ public final class HttpServer2 implements FilterContainer {
                     SSLFactory.SSL_SERVER_NEED_CLIENT_AUTH,
                     SSLFactory.SSL_SERVER_NEED_CLIENT_AUTH_DEFAULT));
 
-            LOG.info("SVETA needsClientAuth="+needsClientAuth);
-
             keyStore(sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_LOCATION),
                     getPassword(sslConf, SSLFactory.SSL_SERVER_KEYSTORE_PASSWORD),
                     sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_TYPE,
                             SSLFactory.SSL_SERVER_KEYSTORE_TYPE_DEFAULT));
 
-            LOG.info("SVETA keyStore="+keyStore);
-
             keyPassword(getPassword(sslConf,
                     SSLFactory.SSL_SERVER_KEYSTORE_KEYPASSWORD));
-
-            LOG.info("SVETA keyPassword="+keyPassword);
 
             trustStore(sslConf.get(SSLFactory.SSL_SERVER_TRUSTSTORE_LOCATION),
                     getPassword(sslConf, SSLFactory.SSL_SERVER_TRUSTSTORE_PASSWORD),
                     sslConf.get(SSLFactory.SSL_SERVER_TRUSTSTORE_TYPE,
                             SSLFactory.SSL_SERVER_TRUSTSTORE_TYPE_DEFAULT));
 
-            LOG.info("SVETA trustStore="+trustStore);
         }
 
         public HttpServer2 build() throws IOException {
@@ -354,13 +346,11 @@ public final class HttpServer2 implements FilterContainer {
 
             HttpServer2 server = new HttpServer2(this);
 
-            LOG.info("SVETA: this.securityEnabled="+this.securityEnabled);
             if (this.securityEnabled) {
                 server.addGlobalFilter("Authentication", HadoopCoreAuthenticationFilter.class.getName(), null);
             }
 
             for (URI ep : endpoints) {
-                LOG.info("SVETA: ep.getScheme()="+ep.getScheme());
                 if (HTTPS_SCHEME.equals(ep.getScheme())) {
                     loadSSLConfiguration();
                     break;
@@ -370,12 +360,10 @@ public final class HttpServer2 implements FilterContainer {
             int requestHeaderSize = conf.getInt(
                     HTTP_MAX_REQUEST_HEADER_SIZE_KEY,
                     HTTP_MAX_REQUEST_HEADER_SIZE_DEFAULT);
-            LOG.info("SVETA: requestHeaderSize="+requestHeaderSize);
 
             int responseHeaderSize = conf.getInt(
                     HTTP_MAX_RESPONSE_HEADER_SIZE_KEY,
                     HTTP_MAX_RESPONSE_HEADER_SIZE_DEFAULT);
-            LOG.info("SVETA: responseHeaderSize="+responseHeaderSize);
 
             HttpConfiguration httpConfig = new HttpConfiguration();
             httpConfig.setRequestHeaderSize(requestHeaderSize);

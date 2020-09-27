@@ -88,7 +88,7 @@ run_httpfs()
   fi
   JAVA=$JAVA_HOME/bin/java
 
-  exec "$JAVA" -Dproc_httpfs $HTTPFS_OPTS -classpath "$HTTPFS_CLASSPATH" $HTTPFS_CLASSNAME "$@"
+  exec "$JAVA" -Dproc_httpfs $HTTPFS_OPTS $MAPR_ECOSYSTEM_LOGIN_OPTS -classpath "$HTTPFS_CLASSPATH" $HTTPFS_CLASSNAME "$@"
 }
 
 if [ "$HTTPFS_PID_DIR" = "" ]; then

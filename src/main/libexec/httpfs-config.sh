@@ -76,6 +76,14 @@ else
 fi
 httpfs_config=${HTTPFS_CONFIG}
 
+# if the configuration dir has a env file, source it
+#
+if [ -e "${HTTPFS_CONFIG}/httpfs-env.sh" ]; then
+  print "Sourcing:                    ${HTTPFS_CONFIG}/httpfs-env.sh"
+  source ${HTTPFS_CONFIG}/httpfs-env.sh
+  grep "^ *export " ${HTTPFS_CONFIG}/httpfs-env.sh | sed 's/ *export/  setting/'
+fi
+
 # verify that the sourced env file didn't change HTTPFS_HOME
 # if so, warn and revert
 #
@@ -114,23 +122,46 @@ if [ ! -f ${HTTPFS_TEMP} ]; then
   mkdir -p ${HTTPFS_TEMP}
 fi
 
-httpfs_opts="${httpfs_opts} -Dhttpfs.config.dir=${HTTPFS_CONFIG}";
-httpfs_opts="${httpfs_opts} -Dhttpfs.home.dir=${HTTPFS_HOME}";
-httpfs_opts="${httpfs_opts} -Dhttpfs.log.dir=${HTTPFS_LOG}";
-httpfs_opts="${httpfs_opts} -Dhttpfs.temp.dir=${HTTPFS_TEMP}";
-httpfs_opts="${httpfs_opts} -Dhttpfs.http.hostname=${HTTPFS_HOST_NAME:-$(hostname -f)}";
-
-if [[ -n "${HTTPFS_SSL_ENABLED}" ]]; then
-    httpfs_opts="${httpfs_opts} -Dhttpfs.ssl.enabled=${HTTPFS_SSL_ENABLED}";
+if [ "${HTTPFS_HTTP_PORT}" = "" ]; then
+  export HTTPFS_HTTP_PORT=14000
+  print "Setting HTTPFS_HTTP_PORT:     ${HTTPFS_HTTP_PORT}"
+else
+  print "Using   HTTPFS_HTTP_PORT:     ${HTTPFS_HTTP_PORT}"
 fi
+
+if [ "${HTTPFS_ADMIN_PORT}" = "" ]; then
+  export HTTPFS_ADMIN_PORT=`expr $HTTPFS_HTTP_PORT +  1`
+  print "Setting HTTPFS_ADMIN_PORT:     ${HTTPFS_ADMIN_PORT}"
+else
+  print "Using   HTTPFS_ADMIN_PORT:     ${HTTPFS_ADMIN_PORT}"
+fi
+
+if [ "${HTTPFS_HTTP_HOSTNAME}" = "" ]; then
+  export HTTPFS_HTTP_HOSTNAME=`hostname -f`
+  print "Setting HTTPFS_HTTP_HOSTNAME: ${HTTPFS_HTTP_HOSTNAME}"
+else
+  print "Using   HTTPFS_HTTP_HOSTNAME: ${HTTPFS_HTTP_HOSTNAME}"
+fi
+
 if [ "${HTTPFS_SSL_ENABLED_PROTOCOL}" = "" ]; then
   export HTTPFS_SSL_ENABLED_PROTOCOL="TLSv1.2"
   print "Setting HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
 else
   print "Using   HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
 fi
+
+httpfs_opts="${httpfs_opts} -Dhttpfs.config.dir=${HTTPFS_CONFIG}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.home.dir=${HTTPFS_HOME}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.log.dir=${HTTPFS_LOG}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.temp.dir=${HTTPFS_TEMP}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.admin.port=${HTTPFS_ADMIN_PORT}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
 httpfs_opts="${httpfs_opts} -Dhttpfs.sslEnabledProtocols=${HTTPFS_SSL_ENABLED_PROTOCOL}"
 
+if [[ -n "${HTTPFS_SSL_ENABLED}" ]]; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.ssl.enabled=${HTTPFS_SSL_ENABLED}";
+fi
 
 if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
   if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then
@@ -144,7 +175,10 @@ else
   fi
 fi
 
-httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib -Dlog4j.configuration=file://${HTTPFS_HOME}/etc/hadoop/httpfs-log4j.properties"
+httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib"
+httpfs_opts="${httpfs_opts} -Dlog4j.configuration=file://${HTTPFS_HOME}/etc/hadoop/httpfs-log4j.properties"
+httpfs_opts="${httpfs_opts} -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.hosts=0"
+httpfs_opts="${httpfs_opts} -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.groups=0"
 
 export HTTPFS_OPTS=$httpfs_opts
 
