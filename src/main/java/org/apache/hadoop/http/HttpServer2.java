@@ -26,6 +26,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.collect.ImmutableMap;
+import com.mapr.web.security.SslConfig;
+import com.mapr.web.security.SslConfig.SslConfigScope;
+import com.mapr.web.security.WebSecurityManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.HadoopIllegalArgumentException;
@@ -317,15 +320,33 @@ public final class HttpServer2 implements FilterContainer {
                     SSLFactory.SSL_SERVER_NEED_CLIENT_AUTH,
                     SSLFactory.SSL_SERVER_NEED_CLIENT_AUTH_DEFAULT));
 
-            keyStore(sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_LOCATION),
-                    getPassword(sslConf, SSLFactory.SSL_SERVER_KEYSTORE_PASSWORD),
+            String keystoreLocation = sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_LOCATION);
+            if (keystoreLocation == null || keystoreLocation.equals("")) {
+                SslConfig sslConfig = WebSecurityManager.getSslConfig(SslConfigScope.SCOPE_CLIENT_ONLY);
+                keystoreLocation = new String(sslConfig.getClientKeystoreLocation());
+            }
+
+            String keystorePass = sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_PASSWORD);
+            if (keystorePass == null || keystorePass.equals("")) {
+                SslConfig sslConfig = WebSecurityManager.getSslConfig(SslConfigScope.SCOPE_CLIENT_ONLY);
+                keystorePass = new String(sslConfig.getClientKeystorePassword());
+            }
+
+            keyStore(keystoreLocation,
+                    keystorePass,
                     sslConf.get(SSLFactory.SSL_SERVER_KEYSTORE_TYPE,
                             SSLFactory.SSL_SERVER_KEYSTORE_TYPE_DEFAULT));
 
             keyPassword(getPassword(sslConf,
                     SSLFactory.SSL_SERVER_KEYSTORE_KEYPASSWORD));
 
-            trustStore(sslConf.get(SSLFactory.SSL_SERVER_TRUSTSTORE_LOCATION),
+            String trustStorePath= sslConf.get(SSLFactory.SSL_SERVER_TRUSTSTORE_LOCATION);
+            if (trustStorePath == null || trustStorePath.equals("")) {
+                SslConfig sslConfig = WebSecurityManager.getSslConfig(SslConfigScope.SCOPE_CLIENT_ONLY);
+                trustStorePath = sslConfig.getClientTruststoreLocation();
+            }
+
+            trustStore(trustStorePath,
                     getPassword(sslConf, SSLFactory.SSL_SERVER_TRUSTSTORE_PASSWORD),
                     sslConf.get(SSLFactory.SSL_SERVER_TRUSTSTORE_TYPE,
                             SSLFactory.SSL_SERVER_TRUSTSTORE_TYPE_DEFAULT));
