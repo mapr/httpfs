@@ -150,32 +150,49 @@ else
   print "Using   HTTPFS_ENABLED_SSL_PROTOCOL: ${HTTPFS_SSL_ENABLED_PROTOCOL}"
 fi
 
-if [ "${CATALINA_BASE}" = "" ]; then
-  export CATALINA_BASE=${HTTPFS_HOME}/share/hadoop/httpfs/tomcat
-  print "Setting CATALINA_BASE:       ${CATALINA_BASE}"
-else
-  print "Using   CATALINA_BASE:       ${CATALINA_BASE}"
+httpfs_opts="${httpfs_opts} -Dhttpfs.config.dir=${HTTPFS_CONFIG}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.home.dir=${HTTPFS_HOME}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.log.dir=${HTTPFS_LOG}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.temp.dir=${HTTPFS_TEMP}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.admin.port=${HTTPFS_ADMIN_PORT}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.http.port=${HTTPFS_HTTP_PORT}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.http.hostname=${HTTPFS_HTTP_HOSTNAME}";
+httpfs_opts="${httpfs_opts} -Dhttpfs.sslEnabledProtocols=${HTTPFS_SSL_ENABLED_PROTOCOL}"
+
+if [[ -n "${HTTPFS_SSL_ENABLED}" ]]; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.ssl.enabled=${HTTPFS_SSL_ENABLED}";
 fi
 
-if [ "${HTTPFS_CATALINA_HOME}" = "" ]; then
-  export HTTPFS_CATALINA_HOME=${CATALINA_BASE}
-  print "Setting HTTPFS_CATALINA_HOME:       ${HTTPFS_CATALINA_HOME}"
+if [ -f "${HTTPFS_HOME}"/etc/hadoop/isSecure ] ; then
+  if grep --quiet  secure=true "${HTTPFS_HOME}"/etc/hadoop/isSecure; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    httpfs_opts="${httpfs_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
 else
-  print "Using   HTTPFS_CATALINA_HOME:       ${HTTPFS_CATALINA_HOME}"
+  if grep --quiet  secure=true $MAPR_HOME/conf/mapr-clusters.conf; then
+    httpfs_opts="${httpfs_opts} -Dhttpfs.hadoop.authentication.type=multiauth";
+    httpfs_opts="${httpfs_opts} -Dhttpfs.authentication.type=multiauth";
+  fi
 fi
 
-if [ "${CATALINA_OUT}" = "" ]; then
-  export CATALINA_OUT=${HTTPFS_LOG}/httpfs-catalina.out
-  print "Setting CATALINA_OUT:        ${CATALINA_OUT}"
-else
-  print "Using   CATALINA_OUT:        ${CATALINA_OUT}"
-fi
+httpfs_opts="${httpfs_opts} -Djava.library.path=/opt/mapr/lib"
+httpfs_opts="${httpfs_opts} -Dlog4j.configuration=file://${HTTPFS_HOME}/etc/hadoop/httpfs-log4j.properties"
+httpfs_opts="${httpfs_opts} -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.hosts=0"
+httpfs_opts="${httpfs_opts} -Dhttpfs.proxyuser.mapred.skip.reduce.max.skip.groups=0"
 
-if [ "${CATALINA_PID}" = "" ]; then
-  export CATALINA_PID=/opt/mapr/pid/httpfs.pid
-  print "Setting CATALINA_PID:        ${CATALINA_PID}"
-else
-  print "Using   CATALINA_PID:        ${CATALINA_PID}"
-fi
+export HTTPFS_OPTS=$httpfs_opts
+
+mapr_home_dir=${MAPR_HOME:-/opt/mapr}
+hadoop_version=`cat /opt/mapr/hadoop/hadoopversion`
+hadoop_home_dir=${mapr_home_dir}/hadoop/hadoop-${hadoop_version}
+
+hadoop_common_file=`find ${hadoop_home_dir}/share/hadoop/common/* -type f -name hadoop-common* | sort -nrz | head -1`
+httpfs_classpath="${hadoop_common_file}:${hadoop_home_dir}/share/hadoop/common/lib/*"
+httpfs_classpath="${HTTPFS_HOME}/share/hadoop/hdfs/*:${HTTPFS_HOME}/share/hadoop/hdfs/lib/*:${httpfs_classpath}"
+
+export HTTPFS_CLASSPATH=$httpfs_classpath
+
+export HTTPFS_CLASSNAME=org.apache.hadoop.fs.http.server.HttpFSServerWebServer
 
 print
+

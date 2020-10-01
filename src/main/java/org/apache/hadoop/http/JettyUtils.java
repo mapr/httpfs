@@ -16,30 +16,20 @@
  * limitations under the License.
  */
 
-package org.apache.hadoop.fs.http.client;
+package org.apache.hadoop.http;
 
-import org.apache.hadoop.security.UserGroupInformation;
-import org.apache.hadoop.security.authentication.client.PseudoAuthenticator;
-
-import java.io.IOException;
+import org.apache.hadoop.classification.InterfaceAudience;
+import org.apache.hadoop.classification.InterfaceStability;
 
 /**
- * A <code>PseudoAuthenticator</code> subclass that uses FileSystemAccess's
- * <code>UserGroupInformation</code> to obtain the client user name (the UGI's login user).
+ * Contains utility methods and constants relating to Jetty.
  */
-public class HttpPseudoAuthenticator extends PseudoAuthenticator {
+@InterfaceAudience.Public
+@InterfaceStability.Evolving
+public final class JettyUtils {
+  public static final String UTF_8 = "charset=utf-8";
+  public static final int HEADER_SIZE = 1024 * 64;
 
-  /**
-   * Return the client user name.
-   *
-   * @return the client user name.
-   */
-  @Override
-  protected String getUserName() {
-    try {
-      return UserGroupInformation.getLoginUser().getUserName();
-    } catch (IOException ex) {
-      throw new SecurityException("Could not obtain current user, " + ex.getMessage(), ex);
-    }
+  private JettyUtils() {
   }
 }

@@ -32,9 +32,10 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import org.apache.hadoop.http.JettyUtils;
 
 @Provider
-@Produces(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON + "; " + JettyUtils.UTF_8)
 public class JSONProvider implements MessageBodyWriter<JSONStreamAware> {
   private static final String ENTER = System.getProperty("line.separator");
 

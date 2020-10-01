@@ -17,14 +17,13 @@
  */
 package org.apache.hadoop.fs.http.server;
 
+import org.apache.hadoop.classification.InterfaceAudience;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.authentication.client.AuthenticationException;
 import org.apache.hadoop.security.authentication.server.AuthenticationFilter;
-import org.apache.hadoop.security.authentication.server.AuthenticationToken;
+import org.apache.hadoop.security.token.delegation.web.DelegationTokenAuthenticationFilter;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -35,8 +34,11 @@ import java.util.Properties;
  * Subclass of hadoop-auth <code>AuthenticationFilter</code> that obtains its configuration
  * from HttpFSServer's server configuration.
  */
-public class AuthFilter extends AuthenticationFilter {
-  private static final String CONF_PREFIX = "httpfs.authentication.";
+@InterfaceAudience.Private
+public class HttpFSAuthenticationFilter
+    extends DelegationTokenAuthenticationFilter {
+
+  static final String CONF_PREFIX = "httpfs.authentication.";
 
   private static final String SIGNATURE_SECRET_FILE = SIGNATURE_SECRET + ".file";
 
@@ -53,7 +55,8 @@ public class AuthFilter extends AuthenticationFilter {
    * @return hadoop-auth configuration read from HttpFSServer's configuration.
    */
   @Override
-  protected Properties getConfiguration(String configPrefix, FilterConfig filterConfig) {
+  protected Properties getConfiguration(String configPrefix,
+      FilterConfig filterConfig) throws ServletException{
     Properties props = new Properties();
     Configuration conf = HttpFSServerWebApp.get().getConfig();
 
@@ -85,11 +88,11 @@ public class AuthFilter extends AuthenticationFilter {
     } catch (IOException ex) {
       throw new RuntimeException("Could not read HttpFS signature secret file: " + signatureSecretFile);
     }
+
     if (!props.getProperty("type").equals("simple")) {
       props.put("type", "org.apache.hadoop.security.authentication.server.MultiMechsAuthenticationHandler");
     }
     return props;
   }
-
 
 }

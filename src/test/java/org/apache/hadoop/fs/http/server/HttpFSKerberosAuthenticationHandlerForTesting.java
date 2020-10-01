@@ -15,30 +15,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.hadoop.fs.http.server;
 
-package org.apache.hadoop.fs.http.client;
+import org.apache.hadoop.security.token.delegation.web.KerberosDelegationTokenAuthenticationHandler;
 
-import java.net.URI;
+import javax.servlet.ServletException;
+import java.util.Properties;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-//import org.apache.hadoop.hdfs.web.WebHdfsFileSystem;
-import org.apache.hadoop.test.TestJettyHelper;
-import org.junit.Assert;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+public class HttpFSKerberosAuthenticationHandlerForTesting
+  extends KerberosDelegationTokenAuthenticationHandler {
 
-@RunWith(value = Parameterized.class)
-public class TestWebhdfsFileSystem extends TestHttpFSFileSystem {
-
-  public TestWebhdfsFileSystem(TestHttpFSFileSystem.Operation operation) {
-    super(operation);
-  }
-
-/* TODO: remove this when webhdfs is backported to cdh3u4, webhdfs:// will then be avail
   @Override
-  protected Class getFileSystemClass() {
-    return WebHdfsFileSystem.class;
+  public void init(Properties config) throws ServletException {
+    //NOP overwrite to avoid Kerberos initialization
+    config.setProperty(TOKEN_KIND, "t");
+    initTokenManager(config);
   }
-*/
+
+  @Override
+  public void destroy() {
+    //NOP overwrite to avoid Kerberos initialization
+  }
 }

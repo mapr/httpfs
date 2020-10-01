@@ -15,10 +15,9 @@
 
 # Set httpfs specific environment variables here.
 
-# Settings for the Embedded Tomcat that runs HttpFS
-# Java System properties for HttpFS should be specified in this variable
+# HTTPFS config directory
 #
-# export CATALINA_OPTS=
+# export HTTPFS_CONFIG=${HADOOP_CONF_DIR}
 
 # HttpFS logs directory
 #
@@ -32,13 +31,13 @@
 #
 # export HTTPFS_HTTP_PORT=14000
 
-# The Admin port used by HttpFS
-#
-# export HTTPFS_ADMIN_PORT=`expr ${HTTPFS_HTTP_PORT} + 1`
-
 # The hostname HttpFS server runs on
 #
 # export HTTPFS_HTTP_HOSTNAME=`hostname -f`
+
+# Whether SSL is enabled
+#
+# export HTTPFS_SSL_ENABLED=false
 
 #The SSL protocol used by HttpFS
 #

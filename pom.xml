@@ -27,7 +27,7 @@
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-hdfs-httpfs</artifactId>
   <version>${mapr.hadoop.version}</version>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
 
   <name>Apache Hadoop HttpFS for mapr</name>
   <description>Apache Hadoop HttpFS for mapr</description>
@@ -76,13 +76,13 @@
     <mapr.hadoop.version>1.0.3-mapr-5.1.0</mapr.hadoop.version>
     <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-    <tomcat.version>9.0.36</tomcat.version>
-    <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.revision>REVISION NOT AVAIL</httpfs.source.revision>
     <maven.build.timestamp.format>yyyy-MM-dd'T'HH:mm:ssZ</maven.build.timestamp.format>
     <httpfs.build.timestamp>${maven.build.timestamp}</httpfs.build.timestamp>
-    <httpfs.tomcat.dist.dir>${project.build.directory}/${project.artifactId}-${project.version}/share/hadoop/httpfs/tomcat</httpfs.tomcat.dist.dir>
+    <kerberos.realm>LOCALHOST</kerberos.realm>
+    <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
+    <jetty.version>9.4.28.v20200408</jetty.version>
   </properties>
 
   <dependencyManagement>
@@ -220,7 +220,7 @@
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>javax.servlet-api</artifactId>
-        <version>3.0.1</version>
+        <version>3.1.0</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet.jsp</groupId>
@@ -243,14 +243,19 @@
         <version>1.1</version>
       </dependency>
       <dependency>
-        <groupId>org.mortbay.jetty</groupId>
-        <artifactId>jetty</artifactId>
-        <version>6.1.14</version>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-server</artifactId>
+        <version>${jetty.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.mortbay.jetty</groupId>
+        <groupId>org.eclipse.jetty</groupId>
         <artifactId>jetty-util</artifactId>
-        <version>6.1.14</version>
+        <version>${jetty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-webapp</artifactId>
+        <version>${jetty.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
@@ -267,13 +272,18 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
-      <artifactId>jetty</artifactId>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mortbay.jetty</groupId>
+      <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -284,12 +294,12 @@
     <dependency>
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>javax.servlet.jsp</groupId>
       <artifactId>jsp-api</artifactId>
-      <scope>provided</scope>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -344,6 +354,18 @@
       <artifactId>commons-io</artifactId>
       <version>2.4</version>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-webapp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-util</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
@@ -363,6 +385,22 @@
         </excludes>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>krb5.conf</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>krb5.conf</include>
+        </includes>
+      </testResource>
+    </testResources>
 
     <pluginManagement>
       <plugins>
@@ -457,6 +495,16 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <threadCount>1</threadCount>
+          <forkedProcessTimeoutInSeconds>600</forkedProcessTimeoutInSeconds>
+          <systemPropertyVariables>
+            <java.security.krb5.conf>${project.build.directory}/test-classes/krb5.conf</java.security.krb5.conf>
+            <kerberos.realm>${kerberos.realm}</kerberos.realm>
+          </systemPropertyVariables>
+          <excludes>
+            <exclude>**/${test.exclude}.java</exclude>
+            <exclude>${test.exclude.pattern}</exclude>
+            <exclude>${test.exclude.kerberos.test}</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
@@ -544,27 +592,41 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>default-war</id>
-            <phase>package</phase>
-            <goals>
-              <goal>war</goal>
-            </goals>
-            <configuration>
-              <warName>webhdfs</warName>
-              <webappDirectory>${project.build.directory}/webhdfs</webappDirectory>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+
     </plugins>
   </build>
 
   <profiles>
+    <profile>
+      <id>testKerberos</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <properties>
+        <test.exclude.kerberos.test>_</test.exclude.kerberos.test>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <forkMode>once</forkMode>
+              <forkedProcessTimeoutInSeconds>600</forkedProcessTimeoutInSeconds>
+              <systemPropertyVariables>
+                <java.security.krb5.conf>${project.build.directory}/test-classes/krb5.conf</java.security.krb5.conf>
+                <kerberos.realm>${kerberos.realm}</kerberos.realm>
+                <httpfs.http.hostname>localhost</httpfs.http.hostname>
+              </systemPropertyVariables>
+              <includes>
+                <include>**/TestHttpFSWithKerberos.java</include>
+              </includes>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>docs</id>
       <activation>
@@ -617,71 +679,10 @@
               </execution>
             </executions>
           </plugin>
-          <!-- Downloading Tomcat TAR.GZ, using downloads/ dir to avoid downloading over an over -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
-              <execution>
-                <id>dist</id>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-                <phase>package</phase>
-                <configuration>
-                  <target>
-                    <mkdir dir="downloads"/>
-                    <get
-			    src="https://archive.apache.org/dist/tomcat/tomcat-9/v${tomcat.version}/bin/apache-tomcat-${tomcat.version}.tar.gz"
-                        dest="downloads/tomcat.tar.gz" verbose="true" skipexisting="true"/>
-                    <delete dir="${project.build.directory}/tomcat.exp"/>
-                    <mkdir dir="${project.build.directory}/tomcat.exp"/>
-
-                    <!-- Using Unix script to preserve file permissions -->
-                    <echo file="${project.build.directory}/tomcat-untar.sh">
-
-                      which cygpath 2&gt; /dev/null
-                      if [ $? = 1 ]; then
-                      BUILD_DIR="${project.build.directory}"
-                      else
-                      BUILD_DIR=`cygpath --unix '${project.build.directory}'`
-                      fi
-                      cd $BUILD_DIR/tomcat.exp
-                      tar xzf ${basedir}/downloads/tomcat.tar.gz
-                    </echo>
-                    <exec executable="sh" dir="${project.build.directory}" failonerror="true">
-                      <arg line="./tomcat-untar.sh"/>
-                    </exec>
-
-                    <move file="${project.build.directory}/tomcat.exp/apache-tomcat-${tomcat.version}"
-                          tofile="${httpfs.tomcat.dist.dir}"/>
-                    <delete dir="${project.build.directory}/tomcat.exp"/>
-                    <delete dir="${httpfs.tomcat.dist.dir}/webapps"/>
-                    <mkdir dir="${httpfs.tomcat.dist.dir}/webapps"/>
-                    <delete file="${httpfs.tomcat.dist.dir}/conf/server.xml"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml.orig"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/server.xml.https"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/logging.properties"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                    <copy file="${basedir}/src/main/tomcat/setclasspath.sh"
-                          toDir="${httpfs.tomcat.dist.dir}/bin"/>
-                    <copy file="${basedir}/src/main/tomcat/catalina.sh"
-                          toDir="${httpfs.tomcat.dist.dir}/bin"/>
-                    <copy toDir="${httpfs.tomcat.dist.dir}/webapps/ROOT">
-                      <fileset dir="${basedir}/src/main/tomcat/ROOT"/>
-                    </copy>
-                    <copy toDir="${httpfs.tomcat.dist.dir}/webapps/webhdfs">
-                      <fileset dir="${project.build.directory}/webhdfs"/>
-                    </copy>
-                    <copy file="${basedir}/src/main/tomcat/tomcat-users.xml"
-                          toDir="${httpfs.tomcat.dist.dir}/conf"/>
-                  </target>
-                </configuration>
-              </execution>
               <execution>
                 <id>tar</id>
                 <phase>package</phase>
