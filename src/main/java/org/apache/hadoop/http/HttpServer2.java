@@ -60,12 +60,11 @@ import org.eclipse.jetty.server.RequestLog;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SessionManager;
 import org.eclipse.jetty.server.SslConnectionFactory;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.RequestLogHandler;
-import org.eclipse.jetty.server.session.AbstractSessionManager;
+import org.eclipse.jetty.server.session.SessionHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.FilterMapping;
@@ -427,7 +426,8 @@ public final class HttpServer2 implements FilterContainer {
             httpConfig.addCustomizer(new SecureRequestCustomizer());
             ServerConnector conn = createHttpChannelConnector(server, httpConfig);
 
-            SslContextFactory sslContextFactory = new SslContextFactory();
+            SslContextFactory.Server sslContextFactory =
+                    new SslContextFactory.Server();
             sslContextFactory.setNeedClientAuth(needsClientAuth);
             sslContextFactory.setKeyManagerPassword(keyPassword);
             if (keyStore != null) {
@@ -486,12 +486,9 @@ public final class HttpServer2 implements FilterContainer {
             threadPool.setMaxThreads(maxThreads);
         }
 
-        SessionManager sm = webAppContext.getSessionHandler().getSessionManager();
-        if (sm instanceof AbstractSessionManager) {
-            AbstractSessionManager asm = (AbstractSessionManager)sm;
-            asm.setHttpOnly(true);
-            asm.getSessionCookieConfig().setSecure(true);
-        }
+        SessionHandler handler = webAppContext.getSessionHandler();
+        handler.setHttpOnly(true);
+        handler.getSessionCookieConfig().setSecure(true);
 
         ContextHandlerCollection contexts = new ContextHandlerCollection();
         RequestLog requestLog = HttpRequestLog.getRequestLog(name);

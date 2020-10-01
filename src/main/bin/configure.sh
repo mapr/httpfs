@@ -30,6 +30,9 @@ HTTPFS_CONF_DIR="$HTTPFS_HOME"/etc/hadoop/
 HTTPFS_SECURE="$HTTPFS_CONF_DIR"/isSecure
 DAEMON_CONF="$MAPR_HOME/conf/daemon.conf"
 WARDEN_HTTPFS_CONF="$HTTPFS_HOME"/etc/hadoop/warden.httpfs.conf
+hadoop_version=`cat /opt/mapr/hadoop/hadoopversion`
+hadoop_home_dir=${MAPR_HOME}/hadoop/hadoop-${hadoop_version}
+HADOOP_HOME=${HADOOP_HOME:-$hadoop_home_dir}
 
 isSecure=${isSecure:-0}
 isOnlyRoles=${isOnlyRoles:-0}
@@ -155,11 +158,11 @@ else
    fi
 fi
 
-if [[ -f "/opt/mapr/conf/ssl-server.xml" ]]; then
-  ln -s /opt/mapr/conf/ssl-server.xml "$HTTPFS_CONF_DIR/ssl-server.xml"
+if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-server.xml" ]]; then
+  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-server.xml "$HTTPFS_CONF_DIR/ssl-server.xml"
 fi
-if [[ -f "/opt/mapr/conf/ssl-client.xml" ]]; then
-  ln -s /opt/mapr/conf/ssl-client.xml "$HTTPFS_CONF_DIR/ssl-client.xml"
+if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-client.xml" ]]; then
+  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-client.xml "$HTTPFS_CONF_DIR/ssl-client.xml"
 fi
 
 if ! [ -f ${MAPR_CONFD_DIR}/warden.httpfs.conf ] ; then
