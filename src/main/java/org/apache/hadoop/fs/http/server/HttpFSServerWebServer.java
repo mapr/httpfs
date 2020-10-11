@@ -20,9 +20,7 @@ package org.apache.hadoop.fs.http.server;
 import static org.apache.hadoop.util.StringUtils.startupShutdownMessage;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -132,11 +130,32 @@ public class HttpFSServerWebServer {
     }
 
     Configuration sslConf = new ConfigurationWithLogging(
-        SSLFactory.readSSLConfiguration(conf, SSLFactory.Mode.SERVER, configDir));
+        readSSLConfiguration(conf, SSLFactory.Mode.SERVER, configDir));
 
     HttpFSServerWebServer webServer =
         new HttpFSServerWebServer(conf, sslConf);
     webServer.start();
     webServer.join();
   }
+
+  public static Configuration readSSLConfiguration(Configuration conf, SSLFactory.Mode mode, String confDir) {
+
+        Configuration sslConf = new Configuration(false);
+        sslConf.setBoolean(SSLFactory.SSL_REQUIRE_CLIENT_CERT_KEY, conf.getBoolean(
+                SSLFactory.SSL_REQUIRE_CLIENT_CERT_KEY, SSLFactory.SSL_REQUIRE_CLIENT_CERT_DEFAULT));
+        String sslConfResource;
+        if (mode == org.apache.hadoop.security.ssl.SSLFactory.Mode.CLIENT) {
+            sslConfResource = conf.get(SSLFactory.SSL_CLIENT_CONF_KEY,
+                    SSLFactory.SSL_CLIENT_CONF_DEFAULT);
+        } else {
+            sslConfResource = conf.get(SSLFactory.SSL_SERVER_CONF_KEY,
+                    SSLFactory.SSL_SERVER_CONF_DEFAULT);
+        }
+        if (confDir != null){
+            sslConf.addResource(new Path(confDir+ File.separator+sslConfResource));
+        } else {
+            sslConf.addResource(sslConfResource);
+        }
+        return sslConf;
+    }
 }

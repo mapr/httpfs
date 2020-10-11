@@ -45,16 +45,6 @@
       </snapshots>
     </repository>
     <repository>
-      <id>repository.mapr.com</id>
-      <url>http://repository.mapr.com/maven/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-    </repository>
-    <repository>
       <id>central</id>
       <url>https://repo1.maven.org/maven2</url>
       <snapshots>
@@ -73,7 +63,7 @@
 
   <properties>
     <log4j.version>1.2.17</log4j.version>
-    <mapr.hadoop.version>1.0.3-mapr-5.1.0</mapr.hadoop.version>
+    <mapr.hadoop.version>2.7.4.0-mapr-710-SNAPSHOT</mapr.hadoop.version>
     <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
@@ -89,16 +79,48 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.hadoop</groupId>
-        <artifactId>hadoop-core</artifactId>
-	<version>${mapr.hadoop.version}</version>
-	<exclusions>
-          <exclusion>  
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
+        <artifactId>hadoop-common</artifactId>
+        <version>${mapr.hadoop.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.xml.stream</groupId>
+            <artifactId>stax-api</artifactId>
           </exclusion>
           <exclusion>
-            <groupId>com.mapr.hadoop</groupId>
-            <artifactId>maprfs</artifactId>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-util</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>servlet-api-2.5</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>net.java.dev.jets3t</groupId>
+            <artifactId>jets3t</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-bundle</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>core</artifactId>
           </exclusion>
         </exclusions>
       </dependency>
@@ -110,10 +132,6 @@
           <exclusion>
             <groupId>com.mapr.hadoop</groupId>
             <artifactId>maprfs</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -317,14 +335,15 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-core</artifactId>
-      <version>${mapr.hadoop.version}</version>
-      <scope>provided</scope>
-    </dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-common</artifactId>
+          <version>${mapr.hadoop.version}</version>
+          <scope>provided</scope>
+        </dependency>
     <dependency>
     <groupId>com.mapr.security</groupId>
     <artifactId>mapr-security-web</artifactId>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

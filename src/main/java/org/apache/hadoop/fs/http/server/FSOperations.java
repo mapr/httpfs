@@ -30,7 +30,6 @@ import org.apache.hadoop.fs.permission.FsPermission;
 import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.io.IOUtils;
 import org.apache.hadoop.lib.service.FileSystemAccess;
-import org.apache.hadoop.security.AccessControlException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
