@@ -20,7 +20,9 @@ package org.apache.hadoop.fs.http.server;
 import static org.apache.hadoop.util.StringUtils.startupShutdownMessage;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -31,6 +33,7 @@ import org.apache.hadoop.conf.ConfigurationWithLogging;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.http.HttpServer2;
+import org.apache.hadoop.security.alias.CredentialProviderFactory;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.security.ssl.SSLFactory;
 import org.slf4j.Logger;
@@ -155,6 +158,11 @@ public class HttpFSServerWebServer {
             sslConf.addResource(new Path(confDir+ File.separator+sslConfResource));
         } else {
             sslConf.addResource(sslConfResource);
+        }
+
+        String provider_path = conf.get(CredentialProviderFactory.CREDENTIAL_PROVIDER_PATH);
+        if (provider_path != null) {
+            sslConf.set(CredentialProviderFactory.CREDENTIAL_PROVIDER_PATH, provider_path);
         }
         return sslConf;
     }
