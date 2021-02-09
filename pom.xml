@@ -73,6 +73,7 @@
     <kerberos.realm>LOCALHOST</kerberos.realm>
     <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
     <jetty.version>9.4.28.v20200408</jetty.version>
+    <jersey.version>1.19</jersey.version>
   </properties>
 
   <dependencyManagement>
@@ -137,12 +138,12 @@
       <dependency>
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-server</artifactId>
-        <version>1.8</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>com.sun.jersey</groupId>
         <artifactId>jersey-core</artifactId>
-        <version>1.8</version>
+        <version>${jersey.version}</version>
       </dependency>
       <dependency>
         <groupId>javax.servlet</groupId>
