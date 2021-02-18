@@ -137,6 +137,26 @@ chown -R "$MAPR_USER":"$MAPR_GROUP" "$HTTPFS_HOME"
 chmod 600 "$HTTPFS_CONF_DIR"/httpfs-signature.secret
 }
 
+enable-ssl(){
+
+file_exist=0
+if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-server.xml" ]]; then
+  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-server.xml "$HTTPFS_CONF_DIR/ssl-server.xml"
+  file_exist=1
+fi
+if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-client.xml" ]]; then
+  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-client.xml "$HTTPFS_CONF_DIR/ssl-client.xml"
+  file_exist=1
+fi
+
+if [ $file_exist -eq 1 ]; then
+  num=`sed -n '/httpfs.ssl.enabled/=' $HTTPFS_CONF_DIR/httpfs-site.xml`
+  let num=num+1
+  sed -i "$num s/false/true/" $HTTPFS_CONF_DIR/httpfs-site.xml
+fi
+
+}
+
 if ! [ -f "$HTTPFS_SECURE" ] ; then
     touch ${HTTPFS_SECURE}
 fi
@@ -146,6 +166,9 @@ if [ "$isSecure" == 1 ] ; then
      doRestart=0
    else
      echo "secure=true" > ${HTTPFS_SECURE}
+     if [ "$customSec" == 0 ] ; then
+         enable-ssl
+     fi
      doRestart=1
    fi
 
@@ -158,12 +181,7 @@ else
    fi
 fi
 
-if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-server.xml" ]]; then
-  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-server.xml "$HTTPFS_CONF_DIR/ssl-server.xml"
-fi
-if [[ -f "${HADOOP_HOME}/etc/hadoop/ssl-client.xml" ]]; then
-  ln -s ${HADOOP_HOME}/etc/hadoop/ssl-client.xml "$HTTPFS_CONF_DIR/ssl-client.xml"
-fi
+
 
 if ! [ -f ${MAPR_CONFD_DIR}/warden.httpfs.conf ] ; then
   cp ${WARDEN_HTTPFS_CONF} ${MAPR_CONFD_DIR}
