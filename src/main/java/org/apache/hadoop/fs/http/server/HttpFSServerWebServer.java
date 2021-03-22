@@ -57,6 +57,14 @@ public class HttpFSServerWebServer {
   static final String HTTP_HOST_KEY = "httpfs.http.host";
   private static final String HTTP_HOST_DEFAULT = "0.0.0.0";
 
+  // Status server properties
+  static final String STATUS_SERVER_ENABLED_KEY = "httpfs.status.server.enabled";
+  private static final boolean STATUS_SERVER_ENABLED_DEFAULT = true;
+  static final String STATUS_SERVER_PORT_KEY = "httpfs.status.server.port";
+  private static final int STATUS_SERVER_PORT_DEFAULT = 24000;
+  static final String STATUS_SERVER_HOSTNAME_KEY = "httpfs.status.server.hostname";
+  private static final String STATUS_SERVER_HOSTNAME_DEFAULT = "localhost";
+
   // SSL properties
   private static final String SSL_ENABLED_KEY = "httpfs.ssl.enabled";
   private static final boolean SSL_ENABLED_DEFAULT = false;
@@ -73,6 +81,7 @@ public class HttpFSServerWebServer {
   }
 
   private final HttpServer2 httpServer;
+  private final HttpFSStatusServer statusServer;
   private final String scheme;
 
   HttpFSServerWebServer(Configuration conf, Configuration sslConf) throws
@@ -94,10 +103,15 @@ public class HttpFSServerWebServer {
         .setACL(new AccessControlList(conf.get(HTTP_ADMINS_KEY, " ")))
         .addEndpoint(endpoint)
         .build();
+    boolean statusServerEnabled = conf.getBoolean(STATUS_SERVER_ENABLED_KEY, STATUS_SERVER_ENABLED_DEFAULT);
+    String statusServerHostname = conf.get(STATUS_SERVER_HOSTNAME_KEY, STATUS_SERVER_HOSTNAME_DEFAULT);
+    int statusServerPort = conf.getInt(STATUS_SERVER_PORT_KEY, STATUS_SERVER_PORT_DEFAULT);
+    statusServer = new HttpFSStatusServer(statusServerEnabled, statusServerPort, statusServerHostname);
   }
 
-  public void start() throws IOException {
+  public void start() throws Exception {
     httpServer.start();
+    statusServer.start();
   }
 
   public void join() throws InterruptedException {
@@ -105,6 +119,7 @@ public class HttpFSServerWebServer {
   }
 
   public void stop() throws Exception {
+    statusServer.stop();
     httpServer.stop();
   }
 

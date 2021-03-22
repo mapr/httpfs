@@ -1,0 +1,114 @@
+#!/bin/bash
+
+MAPR_HOME=${MAPR_HOME:-/opt/mapr}
+ROLES_DIR="$MAPR_HOME/roles"
+HTTPFS_VERSION=`cat $MAPR_HOME/httpfs/httpfsversion`
+HTTPFS_HOME="$MAPR_HOME"/httpfs/httpfs-"$HTTPFS_VERSION"
+HTTPFS_PID_FILE="$MAPR_HOME"/pid/httpfs.pid
+HTTPFS_STATUS_PORT=24000
+HOSTNAME="localhost"
+EXIT_SUCCESS=0
+EXIT_NOT_RUNNING=1
+EXIT_RUNNING_NOT_RESPONDING=2
+
+HTTPFS="httpfs"
+
+timestamp() {
+  date +"[%Y-%m-%d %H:%M:%S]"
+}
+
+LOG_FILE="$HTTPFS_HOME"/logs/verify_service.log
+
+logInfo() {
+  message="$1"
+  echo "$(timestamp) [INFO] $message" >>"$LOG_FILE"
+}
+
+logError() {
+  message="$1"
+  echo "$(timestamp) [ERROR] $message" >>"$LOG_FILE"
+}
+
+has_service() {
+  serviceName="$1"
+  if [ -f "$ROLES_DIR/$serviceName" ]; then
+    echo 0
+  else
+    echo 1
+  fi
+}
+
+is_running() {
+  SERVICE="$1"
+  PID_FILE="$2"
+
+  if [ -f "$PID_FILE" ]; then
+    if [ -s "$PID_FILE" ]; then
+      kill -0 $(cat "$PID_FILE") >/dev/null 2>&1
+      if [ $? -gt 0 ]; then
+        logError "PID file for service $SERVICE found but no matching process was found"
+        echo $EXIT_NOT_RUNNING
+      else
+        echo $EXIT_SUCCESS
+      fi
+    else
+      logError "PID file for service $SERVICE is empty"
+      echo $EXIT_NOT_RUNNING
+    fi
+  else
+    logError "PID file for service $SERVICE does not exist"
+    echo $EXIT_NOT_RUNNING
+  fi
+}
+
+is_responding() {
+  PORT="$1"
+  result=$(echo $(curl -s "http://$HOSTNAME:$PORT/status"))
+  if [ "x$result" != "x0" ]; then
+    echo $EXIT_RUNNING_NOT_RESPONDING
+  else
+    echo $EXIT_SUCCESS
+  fi
+}
+
+is_service_status_ok() {
+  SERVICE="$1"
+  PID_FILE="$2"
+  PORT="$3"
+  logInfo "Starting $SERVICE verification at $(timestamp)"
+  is_service_running=$(is_running $SERVICE $PID_FILE)
+  if [ $is_service_running -gt 0 ]; then
+    echo $EXIT_NOT_RUNNING
+  else
+    logInfo "Checking service $SERVICE is responding"
+    is_service_responding=$(is_responding $PORT)
+    if [ $is_service_responding -gt 0 ]; then
+      logError "$SERVICE service is not responding"
+      echo $EXIT_RUNNING_NOT_RESPONDING
+    else
+      logInfo "$SERVICE is responding"
+      echo $EXIT_SUCCESS
+    fi
+  fi
+}
+
+check_single_service() {
+  SERVICE="$1"
+  PID_FILE="$2"
+  PORT="$3"
+
+  has_service_installed=$(has_service $SERVICE)
+  if [ $has_service_installed -gt 0 ]; then
+    logError "$SERVICE is not installed"
+    echo $EXIT_NOT_RUNNING
+  else
+    SERVICE_STATUS=$(is_service_status_ok $SERVICE $PID_FILE $PORT)
+    echo $SERVICE_STATUS
+  fi
+}
+
+main() {
+  return $(check_single_service $HTTPFS $HTTPFS_PID_FILE $HTTPFS_STATUS_PORT)
+}
+
+main
