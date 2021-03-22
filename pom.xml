@@ -63,7 +63,7 @@
 
   <properties>
     <log4j.version>1.2.17</log4j.version>
-    <mapr.hadoop.version>2.7.4.0-mapr-710-SNAPSHOT</mapr.hadoop.version>
+    <mapr.hadoop.version>2.7.5.0-mapr-710-SNAPSHOT</mapr.hadoop.version>
     <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
@@ -72,7 +72,7 @@
     <httpfs.build.timestamp>${maven.build.timestamp}</httpfs.build.timestamp>
     <kerberos.realm>LOCALHOST</kerberos.realm>
     <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
-    <jetty.version>9.4.28.v20200408</jetty.version>
+    <jetty.version>9.4.38.v20210224</jetty.version>
     <jersey.version>1.19</jersey.version>
   </properties>
 
