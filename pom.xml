@@ -72,7 +72,7 @@
     <httpfs.build.timestamp>${maven.build.timestamp}</httpfs.build.timestamp>
     <kerberos.realm>LOCALHOST</kerberos.realm>
     <test.exclude.kerberos.test>**/TestHttpFSWithKerberos.java</test.exclude.kerberos.test>
-    <jetty.version>9.4.38.v20210224</jetty.version>
+    <jetty.version>9.4.39.v20210325</jetty.version>
     <jersey.version>1.19</jersey.version>
   </properties>
 
