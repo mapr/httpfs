@@ -26,7 +26,7 @@
   </parent>
   <groupId>org.apache.hadoop</groupId>
   <artifactId>hadoop-httpfs</artifactId>
-  <version>1.1.0.0-mapr-710-SNAPSHOT</version>
+  <version>1.1.0.0-mapr-710</version>
   <packaging>jar</packaging>
 
   <name>Apache Hadoop HttpFS for mapr</name>
@@ -36,7 +36,7 @@
     <!-- Temporary repo -->
     <repository>
       <id>mapr.release</id>
-      <url>${env.MAPR_MAVEN_REPO}</url>
+      <url>${env.MAPR_RELEASES_REPO}</url>
       <releases>
         <enabled>true</enabled>
       </releases>
@@ -63,8 +63,8 @@
 
   <properties>
     <log4j.version>1.2.17</log4j.version>
-    <mapr.hadoop.version>2.7.5.0-mapr-710-SNAPSHOT</mapr.hadoop.version>
-    <mapr.version>6.2.0.0-mapr-SNAPSHOT</mapr.version>
+    <mapr.hadoop.version>2.7.5.0-mapr-710</mapr.hadoop.version>
+    <mapr.version>6.2.0.0-mapr</mapr.version>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
     <httpfs.source.repository>REPO NOT AVAIL</httpfs.source.repository>
     <httpfs.source.revision>REVISION NOT AVAIL</httpfs.source.revision>
