@@ -186,7 +186,7 @@ mapr_home_dir=${MAPR_HOME:-/opt/mapr}
 hadoop_version=`cat /opt/mapr/hadoop/hadoopversion`
 hadoop_home_dir=${mapr_home_dir}/hadoop/hadoop-${hadoop_version}
 
-hadoop_common_file=`find ${hadoop_home_dir}/share/hadoop/common/* -type f -name hadoop-common* | sort -nrz | head -1`
+hadoop_common_file=`find ${hadoop_home_dir}/share/hadoop/common/* -type f -name hadoop-common*  ! -name "*test*.jar" | sort -nrz | head -1`
 httpfs_classpath="${hadoop_common_file}:${hadoop_home_dir}/share/hadoop/common/lib/*"
 httpfs_classpath="${HTTPFS_HOME}/share/hadoop/hdfs/*:${HTTPFS_HOME}/share/hadoop/hdfs/lib/*:${httpfs_classpath}"
 
