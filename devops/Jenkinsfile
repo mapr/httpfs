@@ -108,7 +108,7 @@ pipeline {
             stage("Upload to Artifactory") {
               steps{
                 script {
-                  from = "${WORKSPACE}/${env.PROJECT}/dist/*"
+                  from = "${WORKSPACE}/${PROJECT}/dist/*"
                   to = "${env.ARTIFACTORY_PATH_DEB}"
                   props = "deb.distribution=binary;deb.component=trusty;deb.architecture=all;release=${params.BUILD_TYPE}"
                   artifactory.uploadArtifactsAndBuildInfo(ARTIFACTORY_SERVER, from, to, props)
